@@ -2,6 +2,10 @@ from dataclasses import dataclass
 
 from environs import Env
 
+from gino import Gino
+
+gino_db = Gino()
+
 
 @dataclass
 class DbConfig:
@@ -22,6 +26,13 @@ class TgBot:
 class Config:
     tg_bot: TgBot
     db: DbConfig
+
+
+async def set_gino(data_base: DbConfig) -> None:
+    await gino_db.set_bind(f'postgresql://{data_base.user}:'
+                           f'{data_base.password}@'
+                           f'{data_base.host}/'
+                           f'{data_base.database}')
 
 
 def load_config(path: str = None):

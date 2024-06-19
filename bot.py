@@ -3,8 +3,9 @@ import logging
 
 from aiogram import Bot, Dispatcher
 
-from tgbot.config import load_config
+from tgbot.config import load_config, set_gino
 from tgbot.handlers import register_all_handlers
+from tgbot.models import create_all_db
 
 logger = logging.getLogger(__name__)
 
@@ -19,13 +20,15 @@ async def main():
     )
     logger.info("Starting bot")
     config = load_config(".env")
+    await set_gino(config.db)
 
     # set bot
-    bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
+    bot = Bot(token=config.tg_bot.token)
     bot.config = config
     dp = Dispatcher()
 
     register_all_handlers(dp)
+    await create_all_db()
 
     # start
     try:
