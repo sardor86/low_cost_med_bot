@@ -2,7 +2,7 @@ from tgbot.config import gino_db
 from .base import Base
 
 
-class Users:
+class Users(Base):
     class UsersTable(gino_db.Model):
         __tablename__ = 'users'
 

@@ -1,7 +1,7 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 
 
-def get_register_inline_keyboard():
+def get_register_inline_keyboard() -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
 
     keyboard.row(InlineKeyboardButton(text='Set your own secret phrase', callback_data='set_secret_phrase'))
@@ -10,7 +10,7 @@ def get_register_inline_keyboard():
     return keyboard
 
 
-def understand_secret_phrase_inline_keyboard():
+def understand_secret_phrase_inline_keyboard() -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
 
     keyboard.row(InlineKeyboardButton(text='I understand', callback_data='understand_secret_phrase'))
@@ -18,7 +18,7 @@ def understand_secret_phrase_inline_keyboard():
     return keyboard
 
 
-def about_secret_phrase_inline_keyboard():
+def about_secret_phrase_inline_keyboard() -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
 
     keyboard.row(InlineKeyboardButton(text='About secret phrase', callback_data='about_secret_phrase'))
@@ -26,7 +26,7 @@ def about_secret_phrase_inline_keyboard():
     return keyboard
 
 
-def user_menu_inline_keyboard():
+def user_menu_inline_keyboard() -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
 
     keyboard.row(InlineKeyboardButton(text='Listings', callback_data='listings'))
@@ -40,7 +40,7 @@ def user_menu_inline_keyboard():
     return keyboard
 
 
-def back_to_menu_inline_keyboard():
+def back_to_menu_inline_keyboard() -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
 
     keyboard.row(InlineKeyboardButton(text='Menu', callback_data='menu'))

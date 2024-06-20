@@ -5,7 +5,8 @@ from aiogram.filters import StateFilter
 
 from tgbot.keyboards.user import (understand_secret_phrase_inline_keyboard,
                                   get_register_inline_keyboard,
-                                  about_secret_phrase_inline_keyboard)
+                                  about_secret_phrase_inline_keyboard,
+                                  user_menu_inline_keyboard)
 from tgbot.misc.user import SetSecretPhrase
 from tgbot.models import Users
 
@@ -65,6 +66,12 @@ async def set_secret_phrase(message: Message, state: FSMContext):
                                                     f'Phrase: {message.text}\n\n'
                                                     "Please verify the provided phrase. We won't request it again or "
                                                     'permit changes. Beware of scam bots seeking the same phrase.')
+    await message.reply('Last seen: recently\n'
+                        'Ships from: UK → UK\n'
+                        'Sales: 2,457\n'
+                        'Currency: GBP\n'
+                        'Rating: ★4.92 (913)\n',
+                        reply_markup=user_menu_inline_keyboard().as_markup())
     await state.clear()
 
 
