@@ -7,3 +7,15 @@ class AddGroup(StatesGroup):
 
 class DeleteGroup(StatesGroup):
     chose_group = State()
+
+
+class ShowProducts(StatesGroup):
+    chose_group = State()
+
+
+class AddProduct(StatesGroup):
+    chose_group = State()
+    name = State()
+    description = State()
+    price = State()
+    image = State()

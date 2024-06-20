@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from tgbot.filters import AdminFilter
 from tgbot.keyboards.admin import (get_group_menu_inline_keyboard,
                                    get_menu_inline_keyboard,
-                                   get_delete_group_inline_keyboard)
+                                   get_choose_group_inline_keyboard)
 from tgbot.models import Groups
 from tgbot.misc.admin import AddGroup, DeleteGroup
 
@@ -42,7 +42,7 @@ async def add_group(message: Message, state: FSMContext):
 async def start_delete_group(callback: CallbackQuery, state: FSMContext):
     groups_list = await Groups().get_all_groups()
     await callback.message.edit_text('Choose a group to delete',
-                                     reply_markup=get_delete_group_inline_keyboard(groups_list).as_markup())
+                                     reply_markup=get_choose_group_inline_keyboard(groups_list).as_markup())
     await state.set_state(DeleteGroup.chose_group)
 
 

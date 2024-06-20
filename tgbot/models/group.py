@@ -17,8 +17,8 @@ class Groups(Base):
 
     async def add_group(self, group_name: str) -> bool:
         if not await self.check_in_db_group_name(group_name):
-            user = self.GroupsTable(group_name=group_name)
-            await user.create()
+            group = self.GroupsTable(group_name=group_name)
+            await group.create()
             return True
         else:
             return False
@@ -28,6 +28,9 @@ class Groups(Base):
 
     async def get_all_groups(self) -> list[str]:
         return [group.group_name for group in await self.GroupsTable.query.gino.all()]
+
+    async def get_group(self, group_name) -> GroupsTable:
+        return await self.GroupsTable.query.where(self.GroupsTable.group_name == group_name).gino.first()
 
     async def delete_group(self, group_name: str) -> bool:
         if await self.check_in_db_group_name(group_name):

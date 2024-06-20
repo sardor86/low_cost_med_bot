@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from os import mkdir
 
 from aiogram import Bot, Dispatcher
 
@@ -29,6 +30,9 @@ async def main():
 
     register_all_handlers(dp)
     await create_all_db()
+
+    if not (bot.config.path / 'images').exists():
+        mkdir(bot.config.path / 'images')
 
     # start
     try:
