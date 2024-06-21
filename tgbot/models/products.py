@@ -1,5 +1,3 @@
-from os import remove
-
 from tgbot.config import gino_db
 from .base import Base
 
@@ -49,8 +47,7 @@ class Products(Base):
 
     async def delete_product(self, product_name: str) -> bool:
         if await self.check_in_db_product(product_name):
-            group = await self.ProductsTable.query.where(self.ProductsTable.group_name == product_name).gino.first()
-            remove(group.image)
+            group = await self.ProductsTable.query.where(self.ProductsTable.name == product_name).gino.first()
             await group.delete()
             return True
         return False

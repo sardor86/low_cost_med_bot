@@ -39,3 +39,12 @@ def get_product_menu_inline_keyboard() -> InlineKeyboardBuilder:
     keyboard.row(InlineKeyboardButton(text='Admin panel', callback_data='admin_panel'))
 
     return keyboard
+
+
+def get_choose_product_inline_keyboard(product_list: list[str]) -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+
+    for product in product_list:
+        keyboard.row(InlineKeyboardButton(text=product, callback_data=f'{product}'))
+
+    return keyboard

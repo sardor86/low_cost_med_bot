@@ -1,1 +1,1 @@
-from .state import AddGroup, DeleteGroup, ShowProducts, AddProduct
+from .state import AddGroup, DeleteGroup, ShowProducts, AddProduct, DeleteProduct

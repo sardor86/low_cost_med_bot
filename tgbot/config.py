@@ -1,6 +1,4 @@
-import pathlib
 from dataclasses import dataclass
-from pathlib import Path
 
 from environs import Env
 from gino import Gino
@@ -27,7 +25,6 @@ class TgBot:
 class Config:
     tg_bot: TgBot
     db: DbConfig
-    path: Path
 
 
 async def set_gino(data_base: DbConfig) -> None:
@@ -53,5 +50,4 @@ def load_config(path: str = None):
             user=env.str('DB_USER'),
             database=env.str('DB_NAME')
         ),
-        path=Path(__file__).parent.parent
     )

@@ -19,3 +19,8 @@ class AddProduct(StatesGroup):
     description = State()
     price = State()
     image = State()
+
+
+class DeleteProduct(StatesGroup):
+    chose_group = State()
+    chose_product = State()

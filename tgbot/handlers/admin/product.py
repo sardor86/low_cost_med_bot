@@ -1,5 +1,3 @@
-import random
-
 from aiogram import Dispatcher
 from aiogram.filters import StateFilter
 from aiogram.types import Message, CallbackQuery
@@ -7,8 +5,9 @@ from aiogram.fsm.context import FSMContext
 
 from tgbot.filters import AdminFilter
 from tgbot.keyboards.admin import (get_product_menu_inline_keyboard,
-                                   get_choose_group_inline_keyboard)
-from tgbot.misc.admin import ShowProducts, AddProduct
+                                   get_choose_group_inline_keyboard,
+                                   get_choose_product_inline_keyboard)
+from tgbot.misc.admin import ShowProducts, AddProduct, DeleteProduct
 from tgbot.models import Groups
 from tgbot.models.products import Products
 
@@ -91,6 +90,32 @@ async def set_end_up_product(message: Message, state: FSMContext):
                                  image=photo)
 
     await message.reply('Product added successfully')
+    await message.reply('Products', reply_markup=get_product_menu_inline_keyboard().as_markup())
+    await state.clear()
+
+
+async def start_delete_product(callback: CallbackQuery, state: FSMContext):
+    groups_list = await Groups().get_all_groups()
+    await callback.message.edit_text('Choose name of group',
+                                     reply_markup=get_choose_group_inline_keyboard(groups_list).as_markup())
+    await state.set_state(DeleteProduct.chose_group)
+
+
+async def delete_chose_product(callback: CallbackQuery, state: FSMContext):
+    group = await Groups().get_group(callback.data)
+    await state.update_data(group=group)
+
+    product_list = [product.name for product in await Products().get_all_products_by_group(group_id=group.id)]
+    await callback.message.edit_text('Choose product: ',
+                                     reply_markup=get_choose_product_inline_keyboard(product_list).as_markup())
+    await state.set_state(DeleteProduct.chose_product)
+
+
+async def delete_product(callback: CallbackQuery, state: FSMContext):
+    if not await Products().delete_product(callback.data):
+        await callback.message.edit_text('Try again, We can not delete product')
+    await callback.message.edit_text('Product is successfully deleted')
+    await callback.message.reply('Products', reply_markup=get_product_menu_inline_keyboard().as_markup())
     await state.clear()
 
 
@@ -104,3 +129,6 @@ def register_product_handler(dp: Dispatcher):
     dp.message.register(set_price_product, AdminFilter(), StateFilter(AddProduct.description))
     dp.message.register(set_image_product, AdminFilter(), StateFilter(AddProduct.price))
     dp.message.register(set_end_up_product, AdminFilter(), StateFilter(AddProduct.image))
+    dp.callback_query.register(start_delete_product, AdminFilter(), lambda callback: callback.data == 'delete_product')
+    dp.callback_query.register(delete_chose_product, AdminFilter(), StateFilter(DeleteProduct.chose_group))
+    dp.callback_query.register(delete_product, AdminFilter(), StateFilter(DeleteProduct.chose_product))
