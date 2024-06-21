@@ -21,15 +21,6 @@ def get_group_menu_inline_keyboard() -> InlineKeyboardBuilder:
     return keyboard
 
 
-def get_choose_group_inline_keyboard(groups_list: list[str]) -> InlineKeyboardBuilder:
-    keyboard = InlineKeyboardBuilder()
-
-    for group in groups_list:
-        keyboard.row(InlineKeyboardButton(text=group, callback_data=f'{group}'))
-
-    return keyboard
-
-
 def get_product_menu_inline_keyboard() -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
 
@@ -37,14 +28,5 @@ def get_product_menu_inline_keyboard() -> InlineKeyboardBuilder:
     keyboard.row(InlineKeyboardButton(text='add product', callback_data='add_product'))
     keyboard.row(InlineKeyboardButton(text='delete product', callback_data='delete_product'))
     keyboard.row(InlineKeyboardButton(text='Admin panel', callback_data='admin_panel'))
-
-    return keyboard
-
-
-def get_choose_product_inline_keyboard(product_list: list[str]) -> InlineKeyboardBuilder:
-    keyboard = InlineKeyboardBuilder()
-
-    for product in product_list:
-        keyboard.row(InlineKeyboardButton(text=product, callback_data=f'{product}'))
 
     return keyboard

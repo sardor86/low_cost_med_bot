@@ -46,3 +46,17 @@ def back_to_menu_inline_keyboard() -> InlineKeyboardBuilder:
     keyboard.row(InlineKeyboardButton(text='Menu', callback_data='menu'))
 
     return keyboard
+
+
+def product_menu_inline_keyboard(quantity: int, price: int) -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+
+    keyboard.row(InlineKeyboardButton(text='+1.00', callback_data='+product'),
+                 InlineKeyboardButton(text='🛒 0.00', callback_data='*'),
+                 InlineKeyboardButton(text='-1.00', callback_data='-product'))
+    keyboard.row(InlineKeyboardButton(text=f'Add to Cart {quantity} pcs[£{quantity * price}]',
+                                      callback_data='add_to_cart'))
+    keyboard.row(InlineKeyboardButton(text=f'135 reviews for this product', callback_data='reviews'))
+    keyboard.row(InlineKeyboardButton(text='Back', callback_data='back'))
+
+    return keyboard

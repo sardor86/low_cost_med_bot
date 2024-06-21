@@ -4,12 +4,11 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
 from tgbot.filters import AdminFilter
-from tgbot.keyboards.admin import (get_product_menu_inline_keyboard,
-                                   get_choose_group_inline_keyboard,
-                                   get_choose_product_inline_keyboard)
+from tgbot.keyboards.admin import get_product_menu_inline_keyboard
+from tgbot.keyboards import get_choice_group_inline_keyboard, get_choice_product_inline_keyboard
 from tgbot.misc.admin import ShowProducts, AddProduct, DeleteProduct
 from tgbot.models import Groups
-from tgbot.models.products import Products
+from tgbot.models import Products
 
 
 async def product_menu(callback: CallbackQuery):
@@ -19,7 +18,7 @@ async def product_menu(callback: CallbackQuery):
 async def start_show_product(callback: CallbackQuery, state: FSMContext):
     groups_list = await Groups().get_all_groups()
     await callback.message.edit_text('Choose name of group',
-                                     reply_markup=get_choose_group_inline_keyboard(groups_list).as_markup())
+                                     reply_markup=get_choice_group_inline_keyboard(groups_list).as_markup())
     await state.set_state(ShowProducts.chose_group)
 
 
@@ -38,7 +37,7 @@ async def show_product(callback: CallbackQuery, state: FSMContext):
 async def start_add_product(callback: CallbackQuery, state: FSMContext):
     groups_list = await Groups().get_all_groups()
     await callback.message.edit_text('Choose name of group',
-                                     reply_markup=get_choose_group_inline_keyboard(groups_list).as_markup())
+                                     reply_markup=get_choice_group_inline_keyboard(groups_list).as_markup())
     await state.set_state(AddProduct.chose_group)
 
 
@@ -97,7 +96,7 @@ async def set_end_up_product(message: Message, state: FSMContext):
 async def start_delete_product(callback: CallbackQuery, state: FSMContext):
     groups_list = await Groups().get_all_groups()
     await callback.message.edit_text('Choose name of group',
-                                     reply_markup=get_choose_group_inline_keyboard(groups_list).as_markup())
+                                     reply_markup=get_choice_group_inline_keyboard(groups_list).as_markup())
     await state.set_state(DeleteProduct.chose_group)
 
 
@@ -107,7 +106,7 @@ async def delete_chose_product(callback: CallbackQuery, state: FSMContext):
 
     product_list = [product.name for product in await Products().get_all_products_by_group(group_id=group.id)]
     await callback.message.edit_text('Choose product: ',
-                                     reply_markup=get_choose_product_inline_keyboard(product_list).as_markup())
+                                     reply_markup=get_choice_product_inline_keyboard(product_list).as_markup())
     await state.set_state(DeleteProduct.chose_product)
 
 
