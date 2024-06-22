@@ -40,3 +40,12 @@ class AddDiscount(StatesGroup):
 
 class DeleteDiscount(StatesGroup):
     code = State()
+
+
+class AddDeliveryMethod(StatesGroup):
+    name = State()
+    price = State()
+
+
+class DeleteDeliveryMethod(StatesGroup):
+    name = State()

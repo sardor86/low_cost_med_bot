@@ -29,7 +29,7 @@ async def start_add_discount(callback: CallbackQuery, state: FSMContext):
 
 async def get_code_discount(message: Message, state: FSMContext):
     if await Discount().check_in_db_discount(message.text):
-        await message.reply('Try again, this group name already exists')
+        await message.reply('Try again, this code already exists')
         return
     await state.update_data(code=message.text)
     await message.reply('Write a percent')

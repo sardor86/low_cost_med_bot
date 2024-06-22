@@ -5,4 +5,6 @@ from .state import (AddGroup,
                     DeleteProduct,
                     EditProductState,
                     AddDiscount,
-                    DeleteDiscount)
+                    DeleteDiscount,
+                    AddDeliveryMethod,
+                    DeleteDeliveryMethod)

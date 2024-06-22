@@ -1,6 +1,6 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 
-from tgbot.models import Discount
+from tgbot.models import Discount, DeliveryMethod
 
 
 def get_menu_inline_keyboard() -> InlineKeyboardBuilder:
@@ -9,6 +9,7 @@ def get_menu_inline_keyboard() -> InlineKeyboardBuilder:
     keyboard.row(InlineKeyboardButton(text='groups', callback_data='admin_group'))
     keyboard.row(InlineKeyboardButton(text='products', callback_data='admin_products'))
     keyboard.row(InlineKeyboardButton(text='discount', callback_data='admin_discount'))
+    keyboard.row(InlineKeyboardButton(text='delivery method', callback_data='admin_delivery'))
 
     return keyboard
 
@@ -63,5 +64,25 @@ def get_choice_discount(discount_list: list[Discount.DiscountTable]) -> InlineKe
 
     for discount in discount_list:
         keyboard.row(InlineKeyboardButton(text=discount.code, callback_data=f'{discount.code}'))
+
+    return keyboard
+
+
+def get_delivery_menu_inline_keyboard() -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+
+    keyboard.row(InlineKeyboardButton(text='show all delivery method', callback_data='show_all_delivery_method'))
+    keyboard.row(InlineKeyboardButton(text='add delivery method', callback_data='add_delivery_method'))
+    keyboard.row(InlineKeyboardButton(text='delete delivery method', callback_data='delete_delivery_method'))
+    keyboard.row(InlineKeyboardButton(text='Admin panel', callback_data='admin_panel'))
+
+    return keyboard
+
+
+def get_choice_delivery(delivery_method_list: list[DeliveryMethod.DeliveryMethodTable]) -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+
+    for delivery_method in delivery_method_list:
+        keyboard.row(InlineKeyboardButton(text=delivery_method.name, callback_data=f'{delivery_method.name}'))
 
     return keyboard

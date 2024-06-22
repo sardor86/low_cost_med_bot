@@ -1,6 +1,6 @@
 from aiogram import Dispatcher
 from aiogram.filters import StateFilter
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 
 from tgbot.models import Basket, Products
