@@ -3,3 +3,4 @@ from .user import Users
 from .group import Groups
 from .products import Products
 from .basket import Basket
+from .discount import Discount

@@ -17,7 +17,7 @@ async def product_menu(callback: CallbackQuery):
 
 async def start_show_product(callback: CallbackQuery, state: FSMContext):
     groups_list = await Groups().get_all_groups()
-    await callback.message.edit_text('Choose name of group',
+    await callback.message.edit_text('Choice name of group',
                                      reply_markup=get_choice_group_inline_keyboard(groups_list).as_markup())
     await state.set_state(ShowProducts.chose_group)
 

@@ -31,3 +31,12 @@ class EditProductState(StatesGroup):
     chose_product = State()
     edit_information = State()
     edit_product = State()
+
+
+class AddDiscount(StatesGroup):
+    code = State()
+    percent = State()
+
+
+class DeleteDiscount(StatesGroup):
+    code = State()

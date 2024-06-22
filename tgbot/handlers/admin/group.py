@@ -40,7 +40,7 @@ async def add_group(message: Message, state: FSMContext):
 
 async def start_delete_group(callback: CallbackQuery, state: FSMContext):
     groups_list = await Groups().get_all_groups()
-    await callback.message.edit_text('Choose a group to delete',
+    await callback.message.edit_text('Choice a group to delete',
                                      reply_markup=get_choice_group_inline_keyboard(groups_list).as_markup())
     await state.set_state(DeleteGroup.chose_group)
 
