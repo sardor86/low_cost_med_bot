@@ -1,5 +1,6 @@
 from tgbot.config import gino_db
 from .base import Base
+from .products import Products
 
 
 class Groups(Base):
@@ -35,6 +36,10 @@ class Groups(Base):
     async def delete_group(self, group_name: str) -> bool:
         if await self.check_in_db_group_name(group_name):
             group = await self.GroupsTable.query.where(self.GroupsTable.group_name == group_name).gino.first()
+            product_model = Products()
+            products_list = await product_model.get_all_products_by_group(group_id=group.id)
+            for product in products_list:
+                await product_model.delete_product(product.name)
             await group.delete()
             return True
         return False

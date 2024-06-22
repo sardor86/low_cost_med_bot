@@ -46,6 +46,11 @@ class Basket(Base):
             return True
         return False
 
+    async def delete_all_products(self, product_id):
+        product_list = await self.BasketTable.query.where(self.BasketTable.product == product_id).gino.all()
+        for product in product_list:
+            await product.delete()
+
     async def change_basket(self, product_id: int, user_id: int, quantity: int) -> bool:
         if await self.check_in_db_basket(product_id, user_id):
             basket = await self.BasketTable.query.where(self.BasketTable.product == product_id and

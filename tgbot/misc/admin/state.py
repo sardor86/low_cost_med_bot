@@ -24,3 +24,10 @@ class AddProduct(StatesGroup):
 class DeleteProduct(StatesGroup):
     chose_group = State()
     chose_product = State()
+
+
+class EditProductState(StatesGroup):
+    chose_group = State()
+    chose_product = State()
+    edit_information = State()
+    edit_product = State()
