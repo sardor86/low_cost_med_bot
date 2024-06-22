@@ -3,7 +3,7 @@ from aiogram.filters import StateFilter
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from tgbot.models import Groups, Products
+from tgbot.models import Groups, Products, Basket
 from tgbot.misc.user import ListingState, ProductState
 from tgbot.keyboards import get_choice_group_inline_keyboard, get_choice_product_inline_keyboard
 from tgbot.keyboards.user import product_menu_inline_keyboard
@@ -26,6 +26,12 @@ async def show_product_list(callback: CallbackQuery, state: FSMContext):
 
 
 async def product_details(callback: CallbackQuery, data: dict):
+    basket_model = Basket()
+    if await basket_model.check_in_db_basket(product_id=data['product'].id, user_id=callback.from_user.id):
+        basket = await Basket().get_basket(product_id=data['product'].id, user_id=callback.from_user.id)
+        basket = basket.quantity
+    else:
+        basket = 0
     await callback.message.delete()
     await callback.bot.send_photo(callback.message.chat.id,
                                   caption=f'{data["product"].name}\n'
@@ -34,7 +40,8 @@ async def product_details(callback: CallbackQuery, data: dict):
                                           f'£{data["product"].price}',
                                   photo=data['product'].image,
                                   reply_markup=product_menu_inline_keyboard(data['quantity'],
-                                                                            data['product'].price).as_markup())
+                                                                            data['product'].price,
+                                                                            basket).as_markup())
 
 
 async def show_product_details(callback: CallbackQuery, state: FSMContext):
@@ -68,6 +75,22 @@ async def delete_quantity_product(callback: CallbackQuery, state: FSMContext):
     await product_details(callback, product_data)
 
 
+async def add_to_basket(callback: CallbackQuery, state: FSMContext):
+    product_data = await state.get_data()
+    basket_model = Basket()
+    if await basket_model.check_in_db_basket(product_id=product_data['product'].id,
+                                             user_id=callback.from_user.id):
+        await basket_model.change_basket(product_id=product_data['product'].id,
+                                         user_id=callback.from_user.id,
+                                         quantity=product_data['quantity'])
+    else:
+        await basket_model.add_basket(product_id=product_data['product'].id,
+                                      user_id=callback.from_user.id,
+                                      quantity=product_data['quantity'])
+    await state.update_data(quantity=1)
+    await product_details(callback, product_data)
+
+
 def register_listing_handlers(dp: Dispatcher):
     dp.callback_query.register(list_of_group, lambda callback: callback.data == 'listings')
     dp.callback_query.register(show_product_list, StateFilter(ListingState.choice_group))
@@ -76,3 +99,5 @@ def register_listing_handlers(dp: Dispatcher):
                                lambda callback: callback.data == '+product')
     dp.callback_query.register(delete_quantity_product, StateFilter(ProductState.product),
                                lambda callback: callback.data == '-product')
+    dp.callback_query.register(add_to_basket, StateFilter(ProductState.product),
+                               lambda callback: callback.data == 'add_to_cart')
