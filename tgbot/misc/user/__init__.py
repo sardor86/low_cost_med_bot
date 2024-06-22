@@ -1,1 +1,1 @@
-from .state import SetSecretPhrase, ListingState, ProductState
+from .state import SetSecretPhrase, ListingState, ProductState, BasketState

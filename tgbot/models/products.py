@@ -45,6 +45,9 @@ class Products(Base):
     async def get_product_by_name(self, name: str) -> ProductsTable:
         return await self.ProductsTable.query.where(self.ProductsTable.name == name).gino.first()
 
+    async def get_product_by_id(self, product_id: int) -> ProductsTable:
+        return await self.ProductsTable.query.where(self.ProductsTable.id == product_id).gino.first()
+
     async def delete_product(self, product_name: str) -> bool:
         if await self.check_in_db_product(product_name):
             group = await self.ProductsTable.query.where(self.ProductsTable.name == product_name).gino.first()

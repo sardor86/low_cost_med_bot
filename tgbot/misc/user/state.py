@@ -12,3 +12,7 @@ class ListingState(StatesGroup):
 
 class ProductState(StatesGroup):
     product = State()
+
+
+class BasketState(StatesGroup):
+    basket = State()

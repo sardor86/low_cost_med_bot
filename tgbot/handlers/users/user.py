@@ -1,12 +1,13 @@
 from aiogram import Dispatcher
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
 
 from tgbot.models import Users
 from tgbot.keyboards.user import get_register_inline_keyboard, user_menu_inline_keyboard, back_to_menu_inline_keyboard
 
 
-async def user_start(message: Message):
+async def user_start(message: Message, state: FSMContext):
     await message.reply(f'Welcome, {message.from_user.first_name} !')
     if not await Users().check_in_db_user(message.from_user.id):
         await message.reply('🔐 You need to set a secret phrase to access the bot. '
@@ -20,18 +21,20 @@ async def user_start(message: Message):
                         'Currency: GBP\n'
                         'Rating: ★4.92 (913)\n',
                         reply_markup=user_menu_inline_keyboard().as_markup())
+    await state.clear()
 
 
-async def menu(callback: CallbackQuery):
+async def menu(callback: CallbackQuery, state: FSMContext):
     await callback.message.reply('Last seen: recently\n'
                                  'Ships from: UK → UK\n'
                                  'Sales: 2,457\n'
                                  'Currency: GBP\n'
                                  'Rating: ★4.92 (913)\n',
                                  reply_markup=user_menu_inline_keyboard().as_markup())
+    await state.clear()
 
 
-async def about(callback: CallbackQuery):
+async def about(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_text('About\n\n'
                                      'Welcome to LowCostMedsUK\n\n'                                     
                                      'All items are UK stock unless mentioned. \n\n'                                     
@@ -52,6 +55,7 @@ async def about(callback: CallbackQuery):
                                      'We are not currently offering any refunds as all orders are sent tracked. '
                                      'Only if a mistake is made on our part we will rectify.',
                                      reply_markup=back_to_menu_inline_keyboard().as_markup())
+    await state.clear()
 
 
 def register_user(dp: Dispatcher):
