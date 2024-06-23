@@ -11,15 +11,27 @@ from tgbot.keyboards.user import (checkout_menu_inline_keyboard,
                                   user_menu_inline_keyboard,
                                   checkout_address_menu_inline_keyboard,
                                   delete_message_inline_keyboard)
+from tgbot.keyboards.admin import confirm_order_inline_keyboard
 
 
 async def checkout(user_id: int) -> dict:
     order_model = Order()
     product_model = Products()
     order_list = await order_model.get_all_orders(user_id)
-    message_text = ('Status: 🕓 Pending Checkout \n\n'
-                    'Enter the discount code, address and delivery method. '
-                    'Once your order has been completed, you will be given payment the details\n\n')
+    if order_list[0].confirmation:
+        message_text = 'Status: Confirmed \n\n'
+        markup = None
+    elif order_list[0].payment:
+        message_text = 'Status: 🕓 Pending Confirmation \n\n'
+        markup = None
+    else:
+        message_text = 'Status: 🕓 Pending Checkout \n\n'
+
+        message_text += ('Enter the discount code, address and delivery method. '
+                         'Once your order has been completed, you will be given payment the details\n\n')
+        markup = checkout_menu_inline_keyboard(discount_code=order_list[0].discount,
+                                               delivery_address=order_list[0].address,
+                                               delivery_method=order_list[0].delivery_method).as_markup()
     total_price = 0
     for order in order_list:
         product = await product_model.get_product_by_id(order.product)
@@ -36,9 +48,7 @@ async def checkout(user_id: int) -> dict:
 
     return {
         'message_text': message_text,
-        'markup': checkout_menu_inline_keyboard(discount_code=order.discount,
-                                                delivery_address=order.address,
-                                                delivery_method=order.delivery_method).as_markup(),
+        'markup': markup,
     }
 
 
@@ -70,6 +80,7 @@ async def get_checkout_menu(callback: CallbackQuery, state: FSMContext):
         await order_model.add_order(basket.product,
                                     callback.from_user.id,
                                     basket.quantity,
+                                    None,
                                     None,
                                     None,
                                     None)
@@ -181,6 +192,7 @@ async def get_checkout(message: Message, state: FSMContext):
     total_price = 0
     product_model = Products()
     for order in all_order:
+        await order.update(payment=cheque).apply()
         product = await product_model.get_product_by_id(order.product)
         admin_message += f'{product.name} {order.quantity} pcs - £{product.price}\n'
         total_price += product.price
@@ -199,7 +211,8 @@ async def get_checkout(message: Message, state: FSMContext):
     admin_message += f'\n\nCheque: {cheque}'
 
     for admin_id in message.bot.config.tg_bot.admin_ids:
-        await message.bot.send_message(admin_id, admin_message)
+        await message.bot.send_message(admin_id, admin_message,
+                                       reply_markup=confirm_order_inline_keyboard(message.from_user.id).as_markup())
 
     await message.reply('Please wait when admin confirm your order',
                         reply_markup=user_menu_inline_keyboard().as_markup())

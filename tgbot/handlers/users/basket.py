@@ -13,9 +13,12 @@ async def basket_menu(callback: CallbackQuery):
     user_basket = await basket_model.get_all_products(callback.from_user.id)
 
     if not user_basket:
-        await callback.message.edit_text('Your basket is empty',
-                                         reply_markup=back_to_menu_inline_keyboard().as_markup())
+        await callback.bot.send_message(callback.from_user.id,
+                                        'Your basket is empty',
+                                        reply_markup=back_to_menu_inline_keyboard().as_markup())
         return
+
+    await callback.message.delete()
 
     message_text = ('This is a list of all the items in your basket. '
                     'If you want to remove any of them, select the name of the item from the list.\n\n')
@@ -30,7 +33,9 @@ async def basket_menu(callback: CallbackQuery):
 
     message_text += f'Total: £{total_price}'
 
-    await callback.message.edit_text(message_text, reply_markup=(await get_basket_menu(user_basket)).as_markup())
+    await callback.bot.send_message(callback.from_user.id,
+                                    message_text,
+                                    reply_markup=(await get_basket_menu(user_basket)).as_markup())
 
 
 async def get_basket(callback: CallbackQuery, state: FSMContext):

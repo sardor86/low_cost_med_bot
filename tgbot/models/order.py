@@ -13,6 +13,7 @@ class Order(Base):
         discount = gino_db.Column(gino_db.ForeignKey('discount.id'), nullable=True)
         delivery_method = gino_db.Column(gino_db.ForeignKey('delivery_method.id'), nullable=True)
         address = gino_db.Column(gino_db.String(), nullable=True)
+        payment = gino_db.Column(gino_db.String(), nullable=True)
         confirmation = gino_db.Column(gino_db.Boolean(), default=False)
 
         def __str__(self) -> str:
@@ -26,6 +27,7 @@ class Order(Base):
                         quantity: int,
                         discount_id: int | None,
                         delivery_method_id: int | None,
+                        payment: str | None,
                         address: str | None) -> OrderTable:
         if not await self.check_in_db_order(product_id, user_id):
             order = self.OrderTable(product=product_id,
@@ -43,7 +45,7 @@ class Order(Base):
         return not await self.OrderTable.query.where(self.OrderTable.product == product_id and
                                                      self.OrderTable.user == user_id).gino.first() is None
 
-    async def get_all_orders(self, user_id) -> list[OrderTable]:
+    async def get_all_orders(self, user_id: int) -> list[OrderTable]:
         return await self.OrderTable.query.where(self.OrderTable.user == user_id).gino.all()
 
     async def get_order(self, product_id, user_id) -> OrderTable:
