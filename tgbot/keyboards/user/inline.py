@@ -103,6 +103,7 @@ def checkout_menu_inline_keyboard(discount_code: bool | None = None,
         keyboard.row(InlineKeyboardButton(text='Checkout', callback_data='checkout_payment'))
 
     keyboard.row(InlineKeyboardButton(text='cancellation', callback_data='checkout_cancel'))
+    keyboard.row(InlineKeyboardButton(text='Delete Order', callback_data='checkout_delete'))
 
     return keyboard
 
@@ -123,5 +124,23 @@ def get_choice_delivery(delivery_method_list: list[DeliveryMethod.DeliveryMethod
                                           callback_data=f'{delivery_method.name}'))
 
     keyboard.row(InlineKeyboardButton(text='cancel', callback_data='checkout_cancel'))
+
+    return keyboard
+
+
+def checkout_address_menu_inline_keyboard() -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+
+    keyboard.row(InlineKeyboardButton(text='Why is it safe?', callback_data='checkout_about'))
+    keyboard.row(InlineKeyboardButton(text='Vendor PGP key', callback_data='vendor_secret_key'))
+    keyboard.row(InlineKeyboardButton(text='cancel', callback_data='checkout_cancel'))
+
+    return keyboard
+
+
+def delete_message_inline_keyboard() -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+
+    keyboard.row(InlineKeyboardButton(text='Delete Message', callback_data='delete_message'))
 
     return keyboard

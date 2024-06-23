@@ -2,9 +2,13 @@ from aiogram import Dispatcher
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
+from aiogram.types import BufferedInputFile
 
 from tgbot.models import Users
-from tgbot.keyboards.user import get_register_inline_keyboard, user_menu_inline_keyboard, back_to_menu_inline_keyboard
+from tgbot.keyboards.user import (get_register_inline_keyboard,
+                                  user_menu_inline_keyboard,
+                                  back_to_menu_inline_keyboard,
+                                  delete_message_inline_keyboard)
 
 
 async def user_start(message: Message, state: FSMContext):
@@ -56,7 +60,24 @@ async def about(callback: CallbackQuery, state: FSMContext):
     await state.clear()
 
 
+async def public_key(callback: CallbackQuery):
+    user_public_key = (await Users().get_secret_user(callback.from_user.id)).public_key
+
+    await callback.bot.send_document(callback.from_user.id,
+                                     BufferedInputFile((b'-----BEGIN PGP PUBLIC KEY BLOCK-----\n\n' +
+                                                        user_public_key.encode('UTF-8') +
+                                                        b'\n-----END PGP PUBLIC KEY BLOCK-----'),
+                                                       'public-pgp-key.txt'),
+                                     reply_markup=delete_message_inline_keyboard().as_markup())
+
+
+async def delete_message(callback: CallbackQuery):
+    await callback.message.delete()
+
+
 def register_user(dp: Dispatcher):
     dp.message.register(user_start, Command("start"))
     dp.callback_query.register(menu, lambda callback: callback.data == 'menu')
     dp.callback_query.register(about, lambda callback: callback.data == 'about')
+    dp.callback_query.register(public_key, lambda callback: callback.data == 'secret_key')
+    dp.callback_query.register(delete_message, lambda callback: callback.data == 'delete_message')
