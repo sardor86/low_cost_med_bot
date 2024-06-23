@@ -19,11 +19,17 @@ async def user_start(message: Message, state: FSMContext):
                             'The secret phrase allows you to stay safe and buy only from verified stores.',
                             reply_markup=get_register_inline_keyboard().as_markup())
         return
+    all_review = await Review().get_all_reviews()
+
+    review_middle = 0
+    for review in all_review:
+        review_middle += review.stars + 1
+
     await message.reply('Ships from: UK → UK\n'
-                        'Sales: 2,457\n'
                         'Currency: GBP\n'
-                        'Rating: ★4.92 (913)\n',
+                        f'Rating: ★{review_middle / len(all_review)} ({len(all_review)})\n',
                         reply_markup=user_menu_inline_keyboard().as_markup())
+
     await state.clear()
 
 
@@ -35,7 +41,6 @@ async def menu(callback: CallbackQuery, state: FSMContext):
         review_middle += review.stars + 1
 
     await callback.message.reply('Ships from: UK → UK\n'
-                                 'Sales: 2,457\n'
                                  'Currency: GBP\n'
                                  f'Rating: ★{review_middle / len(all_review)} ({len(all_review)})\n',
                                  reply_markup=user_menu_inline_keyboard().as_markup())

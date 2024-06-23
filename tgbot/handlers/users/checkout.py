@@ -3,7 +3,7 @@ from aiogram.filters import StateFilter
 from aiogram.types import CallbackQuery, Message, BufferedInputFile
 from aiogram.fsm.context import FSMContext
 
-from tgbot.models import Order, Basket, Products, Discount, DeliveryMethod, Users
+from tgbot.models import Order, Basket, Products, Discount, DeliveryMethod, Users, Review
 from tgbot.misc.user import CheckoutState
 from tgbot.keyboards.user import (checkout_menu_inline_keyboard,
                                   checkout_cancellation_inline_keyboard,
@@ -63,11 +63,16 @@ async def checkout_cancellation(callback: CallbackQuery, state: FSMContext):
         message_data = await checkout(callback.from_user.id)
         await callback.message.edit_text(message_data['message_text'], reply_markup=message_data['markup'])
         return
-    await callback.message.edit_text('Ships from: UK → UK\n'
-                                     'Sales: 2,457\n'
-                                     'Currency: GBP\n'
-                                     'Rating: ★4.92 (913)\n',
-                                     reply_markup=user_menu_inline_keyboard().as_markup())
+    all_review = await Review().get_all_reviews()
+
+    review_middle = 0
+    for review in all_review:
+        review_middle += review.stars + 1
+
+    await callback.message.reply('Ships from: UK → UK\n'
+                                 'Currency: GBP\n'
+                                 f'Rating: ★{review_middle / len(all_review)} ({len(all_review)})\n',
+                                 reply_markup=user_menu_inline_keyboard().as_markup())
     await state.clear()
 
 
@@ -128,7 +133,10 @@ async def enter_address(callback: CallbackQuery, state: FSMContext):
                                       '(STREET NAME + NUMBER) - Victoria St 155\n'
                                       '(CITY) - LONDON\n'
                                       '(POSTAL CODE) - SW1E 5N\n'
-                                      '(COUNTRY) - UNITED KINGDOM\n'),
+                                      '(COUNTRY) - UNITED KINGDOM\n'
+                                      '(PHONE NUMBER) - +7 ********\n'
+                                      '(EMAIL) - somebody@gmail.com\n\n'
+                                      'Email is necessary for delivery tracking information to be sent'),
                                      reply_markup=checkout_address_menu_inline_keyboard().as_markup())
     await state.set_state(CheckoutState.delivery_address)
 
