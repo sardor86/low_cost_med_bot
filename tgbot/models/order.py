@@ -48,6 +48,10 @@ class Order(Base):
     async def get_all_orders(self, user_id: int) -> list[OrderTable]:
         return await self.OrderTable.query.where(self.OrderTable.user == user_id).gino.all()
 
+    async def get_all_orders_review(self, user_id: int) -> list[OrderTable]:
+        return await self.OrderTable.query.where(self.OrderTable.user == user_id and
+                                                 self.OrderTable.confirmation is True).gino.all()
+
     async def get_order(self, product_id, user_id) -> OrderTable:
         return await self.OrderTable.query.where(self.OrderTable.product == product_id and
                                                  self.OrderTable.user == user_id).gino.first()

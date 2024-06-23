@@ -50,7 +50,7 @@ def back_to_menu_inline_keyboard() -> InlineKeyboardBuilder:
     return keyboard
 
 
-def product_menu_inline_keyboard(quantity: int, price: int, basket: int) -> InlineKeyboardBuilder:
+def product_menu_inline_keyboard(quantity: int, price: int, basket: int, review_len: int) -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
 
     keyboard.row(InlineKeyboardButton(text='+1.00', callback_data='+product'),
@@ -58,7 +58,7 @@ def product_menu_inline_keyboard(quantity: int, price: int, basket: int) -> Inli
                  InlineKeyboardButton(text='-1.00', callback_data='-product'))
     keyboard.row(InlineKeyboardButton(text=f'Add to Cart {quantity} pcs[£{quantity * price}]',
                                       callback_data='add_to_cart'))
-    keyboard.row(InlineKeyboardButton(text=f'135 reviews for this product', callback_data='reviews'))
+    keyboard.row(InlineKeyboardButton(text=f'{review_len} reviews for this product', callback_data='listing_reviews'))
     keyboard.row(InlineKeyboardButton(text='Menu', callback_data='menu'))
 
     return keyboard
@@ -161,5 +161,20 @@ def discussion_cancel_inline_keyboard() -> InlineKeyboardBuilder:
     keyboard.row(InlineKeyboardButton(text='Reopen the chat', callback_data='contact'))
     keyboard.row(InlineKeyboardButton(text='History of dialogue', callback_data='discussion_history'))
     keyboard.row(InlineKeyboardButton(text='Menu', callback_data='menu'))
+
+    return keyboard
+
+
+def review_menu_inline_keyboard(stars: int = 5) -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+    keyboard_star_list = []
+    for star_number in range(5):
+        if star_number <= stars:
+            keyboard_star_list.append(InlineKeyboardButton(text='★', callback_data=f'review_star_{star_number}'))
+            continue
+        keyboard_star_list.append(InlineKeyboardButton(text='☆', callback_data=f'review_star_{star_number}'))
+    keyboard.row(*keyboard_star_list)
+    keyboard.row(InlineKeyboardButton(text='Write comment', callback_data='review_comment'))
+    keyboard.row(InlineKeyboardButton(text='Save', callback_data='review_save'))
 
     return keyboard

@@ -28,3 +28,8 @@ class CheckoutState(StatesGroup):
 
 class DiscussionState(StatesGroup):
     discussion = State()
+
+
+class ReviewState(StatesGroup):
+    review = State()
+    review_text = State()

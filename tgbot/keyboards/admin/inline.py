@@ -110,3 +110,12 @@ def discussion_menu_inline_keyboard() -> InlineKeyboardBuilder:
     keyboard.row(InlineKeyboardButton(text='Close', callback_data='close_discussion'))
 
     return keyboard
+
+
+def review_inline_keyboard() -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+
+    keyboard.row(InlineKeyboardButton(text='review', callback_data='review'))
+    keyboard.row(InlineKeyboardButton(text='Cancel', callback_data='menu'))
+
+    return keyboard

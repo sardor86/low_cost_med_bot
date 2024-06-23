@@ -4,7 +4,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import BufferedInputFile
 
-from tgbot.models import Users
+from tgbot.models import Users, Review
 from tgbot.keyboards.user import (get_register_inline_keyboard,
                                   user_menu_inline_keyboard,
                                   back_to_menu_inline_keyboard,
@@ -28,10 +28,16 @@ async def user_start(message: Message, state: FSMContext):
 
 
 async def menu(callback: CallbackQuery, state: FSMContext):
+    all_review = await Review().get_all_reviews()
+
+    review_middle = 0
+    for review in all_review:
+        review_middle += review.stars + 1
+
     await callback.message.reply('Ships from: UK → UK\n'
                                  'Sales: 2,457\n'
                                  'Currency: GBP\n'
-                                 'Rating: ★4.92 (913)\n',
+                                 f'Rating: ★{review_middle / len(all_review)} ({len(all_review)})\n',
                                  reply_markup=user_menu_inline_keyboard().as_markup())
     await state.clear()
 
@@ -75,9 +81,24 @@ async def delete_message(callback: CallbackQuery):
     await callback.message.delete()
 
 
+async def get_rating(callback: CallbackQuery):
+    message_text = 'Reviews \n\n'
+    all_review = await Review().get_all_reviews()
+    for review in all_review:
+        message_text += f'{review.date} '
+        for star_number in range(5):
+            if star_number <= review.stars:
+                message_text += '★'
+            else:
+                message_text += '☆'
+        message_text += f' — £{review.price}\n{review.text}\n\n'
+    await callback.message.edit_text(message_text, reply_markup=back_to_menu_inline_keyboard().as_markup())
+
+
 def register_user(dp: Dispatcher):
     dp.message.register(user_start, Command("start"))
     dp.callback_query.register(menu, lambda callback: callback.data == 'menu')
     dp.callback_query.register(about, lambda callback: callback.data == 'about')
     dp.callback_query.register(public_key, lambda callback: callback.data == 'secret_key')
     dp.callback_query.register(delete_message, lambda callback: callback.data == 'delete_message')
+    dp.callback_query.register(get_rating, lambda callback: callback.data == 'rating')

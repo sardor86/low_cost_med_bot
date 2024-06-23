@@ -1,4 +1,5 @@
 from tgbot.config import gino_db
+from .order import Order
 from .base import Base
 
 
@@ -41,5 +42,10 @@ class DeliveryMethod(Base):
         if not await self.check_in_db_delivery_method(name):
             return False
         delivery_method = await self.DeliveryMethodTable.query.where(self.DeliveryMethodTable.name == name).gino.first()
+        order_model = Order()
+        order_list = await order_model.OrderTable.query.where(
+            order_model.OrderTable.delivery_method == delivery_method.id).gino.all()
+        for order in order_list:
+            await order.update(delivery_method=None)
         await delivery_method.delete()
         return True

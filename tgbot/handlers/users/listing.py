@@ -3,7 +3,7 @@ from aiogram.filters import StateFilter
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from tgbot.models import Groups, Products, Basket
+from tgbot.models import Groups, Products, Basket, ReviewProduct, Review
 from tgbot.misc.user import ListingState, ProductState
 from tgbot.keyboards import get_choice_group_inline_keyboard, get_choice_product_inline_keyboard
 from tgbot.keyboards.user import product_menu_inline_keyboard
@@ -33,15 +33,24 @@ async def product_details(callback: CallbackQuery, data: dict):
     else:
         basket = 0
     await callback.message.delete()
+
+    all_review = await ReviewProduct().get_all_reviews(data['product'].id)
+    review_model = Review()
+    review_middle = 0
+    for review in all_review:
+        review_middle += (await review_model.get_review(review.review)).stars + 1
+
     await callback.bot.send_photo(callback.message.chat.id,
                                   caption=f'{data["product"].name}\n'
-                                          f'{data["group"].group_name} • Stock Unlimited • ★ 5.0 (87)\n\n'
+                                          f'{data["group"].group_name} • Stock Unlimited • ★ '
+                                          f'{review_middle / len(all_review)} ({len(all_review)})\n\n'
                                           f'{data["product"].description}\n\n'
                                           f'£{data["product"].price}',
                                   photo=data['product'].image,
                                   reply_markup=product_menu_inline_keyboard(data['quantity'],
                                                                             data['product'].price,
-                                                                            basket).as_markup())
+                                                                            basket,
+                                                                            len(all_review)).as_markup())
 
 
 async def show_product_details(callback: CallbackQuery, state: FSMContext):
@@ -91,6 +100,23 @@ async def add_to_basket(callback: CallbackQuery, state: FSMContext):
     await product_details(callback, product_data)
 
 
+async def get_rating(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    message_text = 'Reviews \n\n'
+    all_review = await ReviewProduct().get_all_reviews(data['product'].id)
+    review_model = Review()
+    for product_review in all_review:
+        review = await review_model.get_review(product_review.review)
+        message_text += f'{review.date} '
+        for star_number in range(5):
+            if star_number <= review.stars:
+                message_text += '★'
+            else:
+                message_text += '☆'
+        message_text += f' — £{review.price}\n{review.text}\n\n'
+    await callback.message.reply(message_text)
+
+
 def register_listing_handlers(dp: Dispatcher):
     dp.callback_query.register(list_of_group, lambda callback: callback.data == 'listings')
     dp.callback_query.register(show_product_list, StateFilter(ListingState.choice_group))
@@ -101,3 +127,6 @@ def register_listing_handlers(dp: Dispatcher):
                                lambda callback: callback.data == '-product')
     dp.callback_query.register(add_to_basket, StateFilter(ProductState.product),
                                lambda callback: callback.data == 'add_to_cart')
+    dp.callback_query.register(get_rating,
+                               StateFilter(ProductState.product),
+                               lambda callback: callback.data == 'listing_reviews')

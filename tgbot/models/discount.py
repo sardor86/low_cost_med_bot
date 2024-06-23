@@ -1,5 +1,6 @@
 from tgbot.config import gino_db
 from .base import Base
+from .order import Order
 
 
 class Discount(Base):
@@ -39,6 +40,11 @@ class Discount(Base):
     async def delete_discount(self, code: str) -> bool:
         if await self.check_in_db_discount(code):
             discount = await self.DiscountTable.query.where(self.DiscountTable.code == code).gino.first()
+            order_model = Order()
+            order_list = await order_model.OrderTable.query.where(
+                order_model.OrderTable.discount == discount.code).gino.all()
+            for order in order_list:
+                await order.update(discount=None).apply()
             await discount.delete()
             return True
         return False

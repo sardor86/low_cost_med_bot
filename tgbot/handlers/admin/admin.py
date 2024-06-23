@@ -3,7 +3,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 
 from tgbot.filters import AdminFilter
-from tgbot.keyboards.admin import get_menu_inline_keyboard
+from tgbot.keyboards.admin import get_menu_inline_keyboard, review_inline_keyboard
 from tgbot.models import Order
 
 
@@ -22,7 +22,9 @@ async def confirm_order(callback: CallbackQuery):
     for order in order_list:
         await order.update(confirmation=True).apply()
     await callback.message.reply('Order is confirmed')
-    await callback.bot.send_message(int(user_id), 'your order is confirmed')
+    await callback.bot.send_message(int(user_id),
+                                    'your order is confirmed',
+                                    reply_markup=review_inline_keyboard().as_markup())
 
 
 def register_admin(dp: Dispatcher):

@@ -18,6 +18,11 @@ async def checkout(user_id: int) -> dict:
     order_model = Order()
     product_model = Products()
     order_list = await order_model.get_all_orders(user_id)
+    if not order_list:
+        return {
+            'message_text': 'You don\'t have any orders.',
+            'markup': user_menu_inline_keyboard().as_markup()
+        }
     if order_list[0].confirmation:
         message_text = 'Status: Confirmed \n\n'
         markup = None

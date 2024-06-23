@@ -1,4 +1,5 @@
 from tgbot.config import gino_db
+from .order import Order
 from .base import Base
 from .basket import Basket
 
@@ -52,8 +53,8 @@ class Products(Base):
     async def delete_product(self, product_name: str) -> bool:
         if await self.check_in_db_product(product_name):
             product = await self.ProductsTable.query.where(self.ProductsTable.name == product_name).gino.first()
-            basket_model = Basket()
-            await basket_model.delete_all_products(product.id)
+            await Basket().delete_all_products(product.id)
+            await Order().delete_all_products(product.id)
             await product.delete()
             return True
         return False
