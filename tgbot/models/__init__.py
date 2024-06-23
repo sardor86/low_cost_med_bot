@@ -5,3 +5,4 @@ from .products import Products
 from .basket import Basket
 from .discount import Discount
 from .delivery_method import DeliveryMethod
+from .order import Order

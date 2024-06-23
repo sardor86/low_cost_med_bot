@@ -66,8 +66,7 @@ async def set_secret_phrase(message: Message, state: FSMContext):
                                                     f'Phrase: {message.text}\n\n'
                                                     "Please verify the provided phrase. We won't request it again or "
                                                     'permit changes. Beware of scam bots seeking the same phrase.')
-    await message.reply('Last seen: recently\n'
-                        'Ships from: UK → UK\n'
+    await message.reply('Ships from: UK → UK\n'
                         'Sales: 2,457\n'
                         'Currency: GBP\n'
                         'Rating: ★4.92 (913)\n',

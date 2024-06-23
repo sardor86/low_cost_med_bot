@@ -15,8 +15,7 @@ async def user_start(message: Message, state: FSMContext):
                             'The secret phrase allows you to stay safe and buy only from verified stores.',
                             reply_markup=get_register_inline_keyboard().as_markup())
         return
-    await message.reply('Last seen: recently\n'
-                        'Ships from: UK → UK\n'
+    await message.reply('Ships from: UK → UK\n'
                         'Sales: 2,457\n'
                         'Currency: GBP\n'
                         'Rating: ★4.92 (913)\n',
@@ -25,8 +24,7 @@ async def user_start(message: Message, state: FSMContext):
 
 
 async def menu(callback: CallbackQuery, state: FSMContext):
-    await callback.message.reply('Last seen: recently\n'
-                                 'Ships from: UK → UK\n'
+    await callback.message.reply('Ships from: UK → UK\n'
                                  'Sales: 2,457\n'
                                  'Currency: GBP\n'
                                  'Rating: ★4.92 (913)\n',

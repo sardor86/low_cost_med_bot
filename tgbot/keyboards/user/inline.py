@@ -1,6 +1,6 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 
-from tgbot.models import Basket, Products
+from tgbot.models import Basket, Products, DeliveryMethod
 
 
 def get_register_inline_keyboard() -> InlineKeyboardBuilder:
@@ -77,5 +77,51 @@ async def get_basket_menu(basket_list: list[Basket.BasketTable]) -> InlineKeyboa
                                           callback_data=f'{product.id}.delete'))
     keyboard.row(InlineKeyboardButton(text='Menu', callback_data='menu'),
                  InlineKeyboardButton(text='Checkout', callback_data='checkout'))
+
+    return keyboard
+
+
+def checkout_menu_inline_keyboard(discount_code: bool | None = None,
+                                  delivery_address: bool | None = None,
+                                  delivery_method: bool | None = None) -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+
+    if discount_code:
+        keyboard.row(InlineKeyboardButton(text='✅Enter a discount code', callback_data='checkout_discount'))
+    else:
+        keyboard.row(InlineKeyboardButton(text='Enter a discount code', callback_data='checkout_discount'))
+    if delivery_address:
+        keyboard.row(InlineKeyboardButton(text='✅Enter Delivery Address', callback_data='checkout_address'))
+    else:
+        keyboard.row(InlineKeyboardButton(text='Enter Delivery Address', callback_data='checkout_address'))
+    if delivery_method:
+        keyboard.row(InlineKeyboardButton(text='✅Enter Delivery Method', callback_data='checkout_delivery_method'))
+    else:
+        keyboard.row(InlineKeyboardButton(text='Enter Delivery Method', callback_data='checkout_delivery_method'))
+
+    if delivery_method and delivery_address:
+        keyboard.row(InlineKeyboardButton(text='Checkout', callback_data='checkout_payment'))
+
+    keyboard.row(InlineKeyboardButton(text='cancellation', callback_data='checkout_cancel'))
+
+    return keyboard
+
+
+def checkout_cancellation_inline_keyboard() -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+
+    keyboard.row(InlineKeyboardButton(text='cancel', callback_data='checkout_cancel'))
+
+    return keyboard
+
+
+def get_choice_delivery(delivery_method_list: list[DeliveryMethod.DeliveryMethodTable]) -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+
+    for delivery_method in delivery_method_list:
+        keyboard.row(InlineKeyboardButton(text=f'{delivery_method.name} - {delivery_method.price}',
+                                          callback_data=f'{delivery_method.name}'))
+
+    keyboard.row(InlineKeyboardButton(text='cancel', callback_data='checkout_cancel'))
 
     return keyboard

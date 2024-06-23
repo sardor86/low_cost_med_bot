@@ -33,6 +33,9 @@ class Discount(Base):
     async def get_discount(self, code: str) -> DiscountTable:
         return await self.DiscountTable.query.where(self.DiscountTable.code == code).gino.first()
 
+    async def get_discount_by_id(self, discount_id: int) -> DiscountTable:
+        return await self.DiscountTable.query.where(self.DiscountTable.id == discount_id).gino.first()
+
     async def delete_discount(self, code: str) -> bool:
         if await self.check_in_db_discount(code):
             discount = await self.DiscountTable.query.where(self.DiscountTable.code == code).gino.first()

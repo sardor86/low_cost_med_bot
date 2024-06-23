@@ -32,7 +32,10 @@ class DeliveryMethod(Base):
         return await self.DeliveryMethodTable.query.gino.all()
 
     async def get_delivery_method(self, name: str) -> DeliveryMethodTable:
-        return await self.DeliveryMethodTable.query.where(self.DeliveryMethodTable.code == name).gino.first()
+        return await self.DeliveryMethodTable.query.where(self.DeliveryMethodTable.name == name).gino.first()
+
+    async def get_delivery_method_by_id(self, method_id: int) -> DeliveryMethodTable:
+        return await self.DeliveryMethodTable.query.where(self.DeliveryMethodTable.id == method_id).gino.first()
 
     async def delete_delivery_method(self, name: str) -> bool:
         if not await self.check_in_db_delivery_method(name):

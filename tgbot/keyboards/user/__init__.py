@@ -4,4 +4,7 @@ from .inline import (get_register_inline_keyboard,
                      user_menu_inline_keyboard,
                      back_to_menu_inline_keyboard,
                      product_menu_inline_keyboard,
-                     get_basket_menu)
+                     get_basket_menu,
+                     checkout_menu_inline_keyboard,
+                     checkout_cancellation_inline_keyboard,
+                     get_choice_delivery)

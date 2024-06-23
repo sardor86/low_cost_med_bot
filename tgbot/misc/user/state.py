@@ -16,3 +16,11 @@ class ProductState(StatesGroup):
 
 class BasketState(StatesGroup):
     basket = State()
+
+
+class CheckoutState(StatesGroup):
+    checkout = State()
+    discount = State()
+    payment = State()
+    delivery_address = State()
+    delivery_method = State()
