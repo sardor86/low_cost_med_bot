@@ -7,4 +7,5 @@ from .state import (AddGroup,
                     AddDiscount,
                     DeleteDiscount,
                     AddDeliveryMethod,
-                    DeleteDeliveryMethod)
+                    DeleteDeliveryMethod,
+                    DiscussionState)

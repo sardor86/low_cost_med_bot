@@ -144,3 +144,22 @@ def delete_message_inline_keyboard() -> InlineKeyboardBuilder:
     keyboard.row(InlineKeyboardButton(text='Delete Message', callback_data='delete_message'))
 
     return keyboard
+
+
+def discussion_menu_inline_keyboard() -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+
+    keyboard.row(InlineKeyboardButton(text='Vendor PGP key', callback_data='vendor_secret_key'))
+    keyboard.row(InlineKeyboardButton(text='Close', callback_data='close_discussion'))
+
+    return keyboard
+
+
+def discussion_cancel_inline_keyboard() -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+
+    keyboard.row(InlineKeyboardButton(text='Reopen the chat', callback_data='contact'))
+    keyboard.row(InlineKeyboardButton(text='History of dialogue', callback_data='discussion_history'))
+    keyboard.row(InlineKeyboardButton(text='Menu', callback_data='menu'))
+
+    return keyboard

@@ -94,3 +94,19 @@ def confirm_order_inline_keyboard(user_id) -> InlineKeyboardBuilder:
     keyboard.row(InlineKeyboardButton(text='Confirm', callback_data=f'confirm_{user_id}'))
 
     return keyboard
+
+
+def start_discussion_inline_keyboard(user_id) -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+
+    keyboard.row(InlineKeyboardButton(text='Discuss', callback_data=f'discuss_{user_id}'))
+
+    return keyboard
+
+
+def discussion_menu_inline_keyboard() -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+
+    keyboard.row(InlineKeyboardButton(text='Close', callback_data='close_discussion'))
+
+    return keyboard

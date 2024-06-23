@@ -49,3 +49,7 @@ class AddDeliveryMethod(StatesGroup):
 
 class DeleteDeliveryMethod(StatesGroup):
     name = State()
+
+
+class DiscussionState(StatesGroup):
+    discussion = State()

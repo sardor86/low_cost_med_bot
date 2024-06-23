@@ -9,4 +9,6 @@ from .inline import (get_register_inline_keyboard,
                      checkout_cancellation_inline_keyboard,
                      get_choice_delivery,
                      checkout_address_menu_inline_keyboard,
-                     delete_message_inline_keyboard)
+                     delete_message_inline_keyboard,
+                     discussion_menu_inline_keyboard,
+                     discussion_cancel_inline_keyboard)

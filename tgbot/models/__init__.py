@@ -6,3 +6,4 @@ from .basket import Basket
 from .discount import Discount
 from .delivery_method import DeliveryMethod
 from .order import Order
+from .discussion import Discussion
