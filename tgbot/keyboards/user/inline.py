@@ -28,16 +28,16 @@ def about_secret_phrase_inline_keyboard() -> InlineKeyboardBuilder:
     return keyboard
 
 
-def user_menu_inline_keyboard() -> InlineKeyboardBuilder:
+def user_menu_inline_keyboard(price: int) -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
 
-    keyboard.row(InlineKeyboardButton(text='Listings', callback_data='listings'))
+    keyboard.row(InlineKeyboardButton(text='💊 Listings', callback_data='listings'))
     keyboard.row(InlineKeyboardButton(text='About', callback_data='about'))
-    keyboard.row(InlineKeyboardButton(text='Rating', callback_data='rating'),
-                 InlineKeyboardButton(text='PGP', callback_data='secret_key'))
-    keyboard.row(InlineKeyboardButton(text='Orders', callback_data='orders'),
-                 InlineKeyboardButton(text='basket', callback_data='basket'))
-    keyboard.row(InlineKeyboardButton(text='Contact', callback_data='contact'))
+    keyboard.row(InlineKeyboardButton(text='📈 Rating', callback_data='rating'),
+                 InlineKeyboardButton(text='🔑 PGP', callback_data='secret_key'))
+    keyboard.row(InlineKeyboardButton(text='📦 Orders', callback_data='orders'),
+                 InlineKeyboardButton(text=f'🛒 £{price}', callback_data='basket'))
+    keyboard.row(InlineKeyboardButton(text='📭 Contact', callback_data='contact'))
 
     return keyboard
 
@@ -56,10 +56,11 @@ def product_menu_inline_keyboard(quantity: int, price: int, basket: int, review_
     keyboard.row(InlineKeyboardButton(text='+1.00', callback_data='+product'),
                  InlineKeyboardButton(text=f'🛒 {basket * price}', callback_data='basket'),
                  InlineKeyboardButton(text='-1.00', callback_data='-product'))
+    keyboard.row(InlineKeyboardButton(text=f'Enter Quantity Manually', callback_data='quantity_manually'))
     keyboard.row(InlineKeyboardButton(text=f'Add to Cart {quantity} pcs[£{quantity * price}]',
                                       callback_data='add_to_cart'))
     keyboard.row(InlineKeyboardButton(text=f'{review_len} reviews for this product', callback_data='listing_reviews'))
-    keyboard.row(InlineKeyboardButton(text='Menu', callback_data='menu'))
+    keyboard.row(InlineKeyboardButton(text='Back', callback_data='listing_back'))
 
     return keyboard
 
@@ -176,5 +177,13 @@ def review_menu_inline_keyboard(stars: int = 5) -> InlineKeyboardBuilder:
     keyboard.row(*keyboard_star_list)
     keyboard.row(InlineKeyboardButton(text='Write comment', callback_data='review_comment'))
     keyboard.row(InlineKeyboardButton(text='Save', callback_data='review_save'))
+
+    return keyboard
+
+
+def cancel_listing_quantity_manually_inline_keyboard() -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+
+    keyboard.row(InlineKeyboardButton(text='Cancel', callback_data='cancel_listing_quantity_manually'))
 
     return keyboard

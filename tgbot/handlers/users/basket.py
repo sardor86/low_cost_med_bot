@@ -2,6 +2,7 @@ from aiogram import Dispatcher
 from aiogram.filters import StateFilter
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
+from aiogram.exceptions import TelegramBadRequest
 
 from tgbot.models import Basket, Products
 from tgbot.keyboards.user import get_basket_menu, back_to_menu_inline_keyboard
@@ -11,14 +12,15 @@ from tgbot.misc.user import BasketState
 async def basket_menu(callback: CallbackQuery):
     basket_model = Basket()
     user_basket = await basket_model.get_all_products(callback.from_user.id)
-
+    try:
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass
     if not user_basket:
         await callback.bot.send_message(callback.from_user.id,
                                         'Your basket is empty',
                                         reply_markup=back_to_menu_inline_keyboard().as_markup())
         return
-
-    await callback.message.delete()
 
     message_text = ('This is a list of all the items in your basket. '
                     'If you want to remove any of them, select the name of the item from the list.\n\n')

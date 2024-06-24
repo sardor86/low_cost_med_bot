@@ -8,7 +8,7 @@ from tgbot.keyboards.user import (understand_secret_phrase_inline_keyboard,
                                   about_secret_phrase_inline_keyboard,
                                   user_menu_inline_keyboard)
 from tgbot.misc.user import SetSecretPhrase
-from tgbot.models import Users
+from tgbot.models import Users, Review, Basket, Products
 
 
 async def get_about_secret_phrase(callback: CallbackQuery):
@@ -66,11 +66,24 @@ async def set_secret_phrase(message: Message, state: FSMContext):
                                                     f'Phrase: {message.text}\n\n'
                                                     "Please verify the provided phrase. We won't request it again or "
                                                     'permit changes. Beware of scam bots seeking the same phrase.')
+    all_review = await Review().get_all_reviews()
+
+    review_middle = 0
+    for review in all_review:
+        review_middle += review.stars + 1
+
+    basket_list = await Basket().get_all_products(message.from_user.id)
+    product_model = Products()
+
+    basket_price = 0
+
+    for basket in basket_list:
+        basket_price += (await product_model.get_product_by_id(basket.product)).price
+
     await message.reply('Ships from: UK → UK\n'
-                        'Sales: 2,457\n'
                         'Currency: GBP\n'
-                        'Rating: ★4.92 (913)\n',
-                        reply_markup=user_menu_inline_keyboard().as_markup())
+                        f'Rating: ★{review_middle / len(all_review)} ({len(all_review)})\n',
+                        reply_markup=user_menu_inline_keyboard(basket_price).as_markup())
     await state.clear()
 
 

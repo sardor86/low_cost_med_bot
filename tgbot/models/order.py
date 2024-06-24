@@ -2,7 +2,7 @@ from tgbot.config import gino_db
 from .base import Base
 
 
-class Order(Base):
+class Order:
     class OrderTable(gino_db.Model):
         __tablename__ = 'order'
 
@@ -17,12 +17,13 @@ class Order(Base):
         confirmation = gino_db.Column(gino_db.Boolean(), default=False)
 
         def __str__(self) -> str:
-            return f'<Basket {self.product}:{self.user}>'
+            return f'<Order {self.product}:{self.user}>'
 
         def __repr__(self) -> str:
-            return f'<Basket {self.product}:{self.user}>'
+            return f'<Order {self.product}:{self.user}>'
 
-    async def add_order(self, product_id: int,
+    async def add_order(self,
+                        product_id: int,
                         user_id: int,
                         quantity: int,
                         discount_id: int | None,
@@ -35,6 +36,7 @@ class Order(Base):
                                     quantity=quantity,
                                     discount=discount_id,
                                     delivery_method=delivery_method_id,
+                                    payment=payment,
                                     address=address)
             await order.create()
             return order
@@ -42,24 +44,24 @@ class Order(Base):
             return await self.get_order(product_id, user_id)
 
     async def check_in_db_order(self, product_id: int, user_id: int) -> bool:
-        return not await self.OrderTable.query.where(self.OrderTable.product == product_id and
-                                                     self.OrderTable.user == user_id).gino.first() is None
+        return not (await self.OrderTable.query.where(self.OrderTable.product == product_id).
+                    where(self.OrderTable.user == user_id).gino.first() is None)
 
     async def get_all_orders(self, user_id: int) -> list[OrderTable]:
         return await self.OrderTable.query.where(self.OrderTable.user == user_id).gino.all()
 
     async def get_all_orders_review(self, user_id: int) -> list[OrderTable]:
-        return await self.OrderTable.query.where(self.OrderTable.user == user_id and
-                                                 self.OrderTable.confirmation is True).gino.all()
+        return await (self.OrderTable.query.where(self.OrderTable.user == user_id).
+                      where(self.OrderTable.confirmation == True).gino.all())
 
     async def get_order(self, product_id, user_id) -> OrderTable:
-        return await self.OrderTable.query.where(self.OrderTable.product == product_id and
-                                                 self.OrderTable.user == user_id).gino.first()
+        return await (self.OrderTable.query.where(self.OrderTable.product == product_id).
+                      where(self.OrderTable.user == user_id).gino.first())
 
     async def delete_order(self, product_id: int, user_id: int) -> bool:
         if await self.check_in_db_order(product_id, user_id):
-            order = await self.OrderTable.query.where(self.OrderTable.product == product_id and
-                                                      self.OrderTable.user == user_id).gino.first()
+            order = await (self.OrderTable.query.where(self.OrderTable.product == product_id).
+                           where(self.OrderTable.user == user_id).gino.first())
             await order.delete()
             return True
         return False

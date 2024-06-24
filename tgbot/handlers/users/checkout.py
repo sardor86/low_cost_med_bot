@@ -19,9 +19,16 @@ async def checkout(user_id: int) -> dict:
     product_model = Products()
     order_list = await order_model.get_all_orders(user_id)
     if not order_list:
+        basket_list = await Basket().get_all_products(user_id)
+        product_model = Products()
+
+        basket_price = 0
+
+        for basket in basket_list:
+            basket_price += (await product_model.get_product_by_id(basket.product)).price
         return {
             'message_text': 'You don\'t have any orders.',
-            'markup': user_menu_inline_keyboard().as_markup()
+            'markup': user_menu_inline_keyboard(basket_price).as_markup()
         }
     if order_list[0].confirmation:
         message_text = 'Status: Confirmed \n\n'
@@ -69,10 +76,18 @@ async def checkout_cancellation(callback: CallbackQuery, state: FSMContext):
     for review in all_review:
         review_middle += review.stars + 1
 
+    basket_list = await Basket().get_all_products(callback.from_user.id)
+    product_model = Products()
+
+    basket_price = 0
+
+    for basket in basket_list:
+        basket_price += (await product_model.get_product_by_id(basket.product)).price
+
     await callback.message.reply('Ships from: UK → UK\n'
                                  'Currency: GBP\n'
                                  f'Rating: ★{review_middle / len(all_review)} ({len(all_review)})\n',
-                                 reply_markup=user_menu_inline_keyboard().as_markup())
+                                 reply_markup=user_menu_inline_keyboard(basket_price).as_markup())
     await state.clear()
 
 
@@ -227,8 +242,16 @@ async def get_checkout(message: Message, state: FSMContext):
         await message.bot.send_message(admin_id, admin_message,
                                        reply_markup=confirm_order_inline_keyboard(message.from_user.id).as_markup())
 
+    basket_list = await Basket().get_all_products(message.from_user.id)
+    product_model = Products()
+
+    basket_price = 0
+
+    for basket in basket_list:
+        basket_price += (await product_model.get_product_by_id(basket.product)).price
+
     await message.reply('Please wait when admin confirm your order',
-                        reply_markup=user_menu_inline_keyboard().as_markup())
+                        reply_markup=user_menu_inline_keyboard(basket_price).as_markup())
 
 
 def register_checkout_handler(dp: Dispatcher):

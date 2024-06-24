@@ -13,8 +13,8 @@ from .review import register_review_handlers
 def register_all_user_handlers(dp: Dispatcher):
     register_user(dp)
     register_secret_phrase_handlers(dp)
-    register_listing_handlers(dp)
     register_basket_handler(dp)
+    register_listing_handlers(dp)
     register_checkout_handler(dp)
     register_order_handler(dp)
     register_discussion_handler(dp)

@@ -28,20 +28,20 @@ class Basket(Base):
             return False
 
     async def check_in_db_basket(self, product_id: int, user_id: int) -> bool:
-        return not await self.BasketTable.query.where(self.BasketTable.product == product_id and
-                                                      self.BasketTable.user == user_id).gino.first() is None
+        return not (await self.BasketTable.query.where(self.BasketTable.product == product_id).
+                    where(self.BasketTable.user == user_id).gino.first() is None)
 
     async def get_all_products(self, user_id) -> list[BasketTable]:
         return await self.BasketTable.query.where(self.BasketTable.user == user_id).gino.all()
 
     async def get_basket(self, product_id, user_id) -> BasketTable:
-        return await self.BasketTable.query.where(self.BasketTable.product == product_id and
-                                                  self.BasketTable.user == user_id).gino.first()
+        return await (self.BasketTable.query.where(self.BasketTable.product == product_id).
+                      where(self.BasketTable.user == user_id).gino.first())
 
     async def delete_basket(self, product_id: int, user_id: int) -> bool:
         if await self.check_in_db_basket(product_id, user_id):
-            basket = await self.BasketTable.query.where(self.BasketTable.product == product_id and
-                                                        self.BasketTable.user == user_id).gino.first()
+            basket = await (self.BasketTable.query.where(self.BasketTable.product == product_id).
+                            where(self.BasketTable.user == user_id).gino.first())
             await basket.delete()
             return True
         return False
@@ -53,8 +53,8 @@ class Basket(Base):
 
     async def change_basket(self, product_id: int, user_id: int, quantity: int) -> bool:
         if await self.check_in_db_basket(product_id, user_id):
-            basket = await self.BasketTable.query.where(self.BasketTable.product == product_id and
-                                                        self.BasketTable.user == user_id).gino.first()
+            basket = await (self.BasketTable.query.where(self.BasketTable.product == product_id).
+                            where(self.BasketTable.user == user_id).gino.first())
             await basket.update(quantity=basket.quantity + quantity).apply()
             return True
         return False

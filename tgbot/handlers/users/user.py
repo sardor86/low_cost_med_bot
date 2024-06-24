@@ -4,7 +4,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import BufferedInputFile
 
-from tgbot.models import Users, Review
+from tgbot.models import Users, Review, Basket, Products
 from tgbot.keyboards.user import (get_register_inline_keyboard,
                                   user_menu_inline_keyboard,
                                   back_to_menu_inline_keyboard,
@@ -25,10 +25,18 @@ async def user_start(message: Message, state: FSMContext):
     for review in all_review:
         review_middle += review.stars + 1
 
+    basket_list = await Basket().get_all_products(message.from_user.id)
+    product_model = Products()
+
+    basket_price = 0
+
+    for basket in basket_list:
+        basket_price += (await product_model.get_product_by_id(basket.product)).price
+
     await message.reply('Ships from: UK → UK\n'
                         'Currency: GBP\n'
                         f'Rating: ★{review_middle / len(all_review)} ({len(all_review)})\n',
-                        reply_markup=user_menu_inline_keyboard().as_markup())
+                        reply_markup=user_menu_inline_keyboard(basket_price).as_markup())
 
     await state.clear()
 
@@ -40,10 +48,19 @@ async def menu(callback: CallbackQuery, state: FSMContext):
     for review in all_review:
         review_middle += review.stars + 1
 
-    await callback.message.reply('Ships from: UK → UK\n'
-                                 'Currency: GBP\n'
-                                 f'Rating: ★{review_middle / len(all_review)} ({len(all_review)})\n',
-                                 reply_markup=user_menu_inline_keyboard().as_markup())
+    basket_list = await Basket().get_all_products(callback.from_user.id)
+    product_model = Products()
+
+    basket_price = 0
+
+    for basket in basket_list:
+        basket_price += (await product_model.get_product_by_id(basket.product)).price
+    await callback.message.delete()
+    await callback.bot.send_message(callback.from_user.id,
+                                    'Ships from: UK → UK\n'
+                                    'Currency: GBP\n'
+                                    f'Rating: ★{review_middle / len(all_review)} ({len(all_review)})\n',
+                                    reply_markup=user_menu_inline_keyboard(basket_price).as_markup())
     await state.clear()
 
 

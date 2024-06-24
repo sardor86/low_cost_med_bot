@@ -8,6 +8,7 @@ class SetSecretPhrase(StatesGroup):
 class ListingState(StatesGroup):
     choice_group = State()
     show_product = State()
+    quantity_manually = State()
 
 
 class ProductState(StatesGroup):

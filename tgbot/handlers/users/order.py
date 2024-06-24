@@ -1,7 +1,5 @@
 from aiogram import Dispatcher
-from aiogram.filters import StateFilter
 from aiogram.types import CallbackQuery
-from aiogram.fsm.context import FSMContext
 
 from tgbot.handlers.users.checkout import checkout
 

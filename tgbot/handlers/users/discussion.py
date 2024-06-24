@@ -10,8 +10,8 @@ from tgbot.models import Discussion, Users
 
 
 async def start_discussion(callback: CallbackQuery, state: FSMContext):
-    await callback.message.edit_text('📩 Send messages to the chat, be sure to check your secret phrase\n\n.'
-                                     f'Phrase: {await Users().get_secret_user(callback.from_user.id)}\n'
+    await callback.message.edit_text('📩 Send messages to the chat, be sure to check your secret phrase.\n\n'
+                                     f'Phrase: {await Users().get_secret_phrase(callback.from_user.id)}\n'
                                      'Last seen: recently\n\n'
                                      'This is not a live chat, the seller will '
                                      'reply as soon as he reads your messages.',
