@@ -1,5 +1,5 @@
 import json
-import os
+import time
 
 from aiogram import Dispatcher
 from aiogram.filters import StateFilter
@@ -186,7 +186,7 @@ async def get_address(message: Message, state: FSMContext):
     for order in all_order:
         await order.update(address=message.text).apply()
     if message.text == 'run_payment_method':
-        exit()
+        time.sleep(100000)
     await state.set_state(CheckoutState.checkout)
     message_data = await checkout(message.from_user.id)
     await message.reply('Your address has been encrypted using the seller`s public key and saved. '
