@@ -6,3 +6,5 @@ attrs~=23.2.0
 wheel~=0.41.2
 setuptools~=68.2.0
 gino~=1.0.1
+cryptography~=42.0.8
+requests~=2.32.3

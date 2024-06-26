@@ -13,7 +13,8 @@ class Order:
         discount = gino_db.Column(gino_db.ForeignKey('discount.id'), nullable=True)
         delivery_method = gino_db.Column(gino_db.ForeignKey('delivery_method.id'), nullable=True)
         address = gino_db.Column(gino_db.String(), nullable=True)
-        payment = gino_db.Column(gino_db.String(), nullable=True)
+        payment_method = gino_db.Column(gino_db.String(), nullable=True)
+        payment_id = gino_db.Column(gino_db.Integer(), nullable=True)
         confirmation = gino_db.Column(gino_db.Boolean(), default=False)
 
         def __str__(self) -> str:
@@ -28,15 +29,17 @@ class Order:
                         quantity: int,
                         discount_id: int | None,
                         delivery_method_id: int | None,
-                        payment: str | None,
-                        address: str | None) -> OrderTable:
+                        payment_method: str | None,
+                        address: str | None,
+                        payment_id: int | None) -> OrderTable:
         if not await self.check_in_db_order(product_id, user_id):
             order = self.OrderTable(product=product_id,
                                     user=user_id,
                                     quantity=quantity,
                                     discount=discount_id,
                                     delivery_method=delivery_method_id,
-                                    payment=payment,
+                                    payment_method=payment_method,
+                                    payment_id=payment_id,
                                     address=address)
             await order.create()
             return order

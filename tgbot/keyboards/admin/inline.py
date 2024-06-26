@@ -88,14 +88,6 @@ def get_choice_delivery(delivery_method_list: list[DeliveryMethod.DeliveryMethod
     return keyboard
 
 
-def confirm_order_inline_keyboard(user_id) -> InlineKeyboardBuilder:
-    keyboard = InlineKeyboardBuilder()
-
-    keyboard.row(InlineKeyboardButton(text='Confirm', callback_data=f'confirm_{user_id}'))
-
-    return keyboard
-
-
 def start_discussion_inline_keyboard(user_id) -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
 

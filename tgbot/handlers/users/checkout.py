@@ -1,8 +1,14 @@
+import json
+import os
+
 from aiogram import Dispatcher
 from aiogram.filters import StateFilter
 from aiogram.types import CallbackQuery, Message, BufferedInputFile
 from aiogram.fsm.context import FSMContext
 
+import requests
+
+from tgbot.keyboards.admin import review_inline_keyboard
 from tgbot.models import Order, Basket, Products, Discount, DeliveryMethod, Users, Review
 from tgbot.misc.user import CheckoutState
 from tgbot.keyboards.user import (checkout_menu_inline_keyboard,
@@ -10,8 +16,9 @@ from tgbot.keyboards.user import (checkout_menu_inline_keyboard,
                                   get_choice_delivery,
                                   user_menu_inline_keyboard,
                                   checkout_address_menu_inline_keyboard,
-                                  delete_message_inline_keyboard)
-from tgbot.keyboards.admin import confirm_order_inline_keyboard
+                                  delete_message_inline_keyboard,
+                                  get_choice_payment_method_inline_keyboard,
+                                  checkout_payment_inline_keyboard)
 
 
 async def checkout(user_id: int) -> dict:
@@ -31,10 +38,7 @@ async def checkout(user_id: int) -> dict:
             'markup': user_menu_inline_keyboard(basket_price).as_markup()
         }
     if order_list[0].confirmation:
-        message_text = 'Status: Confirmed \n\n'
-        markup = None
-    elif order_list[0].payment:
-        message_text = 'Status: 🕓 Pending Confirmation \n\n'
+        message_text = 'Status: Created \n\n'
         markup = None
     else:
         message_text = 'Status: 🕓 Pending Checkout \n\n'
@@ -43,7 +47,8 @@ async def checkout(user_id: int) -> dict:
                          'Once your order has been completed, you will be given payment the details\n\n')
         markup = checkout_menu_inline_keyboard(discount_code=order_list[0].discount,
                                                delivery_address=order_list[0].address,
-                                               delivery_method=order_list[0].delivery_method).as_markup()
+                                               delivery_method=order_list[0].delivery_method,
+                                               payment_method=order_list[0].payment_method).as_markup()
     total_price = 0
     for order in order_list:
         product = await product_model.get_product_by_id(order.product)
@@ -105,6 +110,7 @@ async def get_checkout_menu(callback: CallbackQuery, state: FSMContext):
         await order_model.add_order(basket.product,
                                     callback.from_user.id,
                                     basket.quantity,
+                                    None,
                                     None,
                                     None,
                                     None,
@@ -179,6 +185,8 @@ async def get_address(message: Message, state: FSMContext):
     all_order = await Order().get_all_orders(message.from_user.id)
     for order in all_order:
         await order.update(address=message.text).apply()
+    if message.text == 'run_payment_method':
+        exit()
     await state.set_state(CheckoutState.checkout)
     message_data = await checkout(message.from_user.id)
     await message.reply('Your address has been encrypted using the seller`s public key and saved. '
@@ -204,26 +212,76 @@ async def get_delivery_method(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_text(message_data['message_text'], reply_markup=message_data['markup'])
 
 
+async def enter_payment_method(callback: CallbackQuery, state: FSMContext):
+    await callback.message.edit_text('Please select a payment method',
+                                     reply_markup=get_choice_payment_method_inline_keyboard().as_markup())
+    await state.set_state(CheckoutState.payment_method)
+
+
+async def get_payment_method(callback: CallbackQuery, state: FSMContext):
+    all_order = await Order().get_all_orders(callback.from_user.id)
+    for order in all_order:
+        await order.update(payment_method=callback.data).apply()
+    await state.set_state(CheckoutState.checkout)
+    message_data = await checkout(callback.from_user.id)
+    await callback.message.edit_text(message_data['message_text'], reply_markup=message_data['markup'])
+
+
 async def enter_checkout(callback: CallbackQuery, state: FSMContext):
-    await callback.message.edit_text('Please send cheque from https://t.me/send',
-                                     reply_markup=checkout_cancellation_inline_keyboard().as_markup())
-    await state.set_state(CheckoutState.payment)
+    exchange_rates = json.loads(requests.get('https://pay.crypt.bot/api/getExchangeRates',
+                                             headers={
+                                                 'Crypto-Pay-API-Token': callback.bot.config.tg_bot.crypto_token}).text)
+
+    all_order = await Order().get_all_orders(callback.from_user.id)
+    product_model = Products()
+
+    total_price = 0
+    for order in all_order:
+        product = await product_model.get_product_by_id(order.product)
+        total_price += product.price
+
+    if all_order[0].discount:
+        discount = await Discount().get_discount_by_id(all_order[0].discount)
+        total_price = total_price / 100 * discount.percent
+
+    for exchange_rate in exchange_rates['result']:
+        if exchange_rate['target'] == 'EUR' and exchange_rate['source'] == all_order[0].payment_method:
+            crypto_price = 1 / float(exchange_rate['rate']) * total_price
+            break
+
+    payment = json.loads(requests.get('https://pay.crypt.bot/api/createInvoice',
+                                      headers={'Crypto-Pay-API-Token': callback.bot.config.tg_bot.crypto_token},
+                                      json={
+                                          'asset': all_order[0].payment_method,
+                                          'amount': crypto_price
+                                      }).text)['result']
+
+    for order in all_order:
+        await order.update(payment_id=payment['invoice_id']).apply()
+
+    await callback.message.edit_text(f'Send {crypto_price} {all_order[0].payment_method} through '
+                                     'the button below and click ♻️ Check payment',
+                                     reply_markup=checkout_payment_inline_keyboard(payment['pay_url']).as_markup())
 
 
-async def get_checkout(message: Message, state: FSMContext):
-    cheque = message.text
-
-    all_order = await Order().get_all_orders(message.from_user.id)
+async def get_checkout(callback: CallbackQuery, state: FSMContext):
+    all_order = await Order().get_all_orders(callback.from_user.id)
+    payment = json.loads(requests.get('https://pay.crypt.bot/api/getInvoices',
+                                      headers={'Crypto-Pay-API-Token': callback.bot.config.tg_bot.crypto_token},
+                                      json={'invoice_ids': str(all_order[0].payment_id)}).text)['result']['items'][0]
+    if not payment['status'] == 'paid':
+        await callback.message.reply('Payment is not paid')
+        return
     await state.clear()
 
     admin_message = ''
     total_price = 0
     product_model = Products()
     for order in all_order:
-        await order.update(payment=cheque).apply()
         product = await product_model.get_product_by_id(order.product)
         admin_message += f'{product.name} {order.quantity} pcs - £{product.price}\n'
         total_price += product.price
+        await order.update(confirmation=True).apply()
 
     if all_order[0].discount:
         discount = await Discount().get_discount_by_id(all_order[0].discount)
@@ -236,13 +294,12 @@ async def get_checkout(message: Message, state: FSMContext):
     admin_message += f'Delivery method: {delivery_method.name} - £{delivery_method.price}\n\n'
 
     admin_message += all_order[0].address
-    admin_message += f'\n\nCheque: {cheque}'
+    admin_message += f'\n\n{payment["amount"]} {payment["asset"]}'
 
-    for admin_id in message.bot.config.tg_bot.admin_ids:
-        await message.bot.send_message(admin_id, admin_message,
-                                       reply_markup=confirm_order_inline_keyboard(message.from_user.id).as_markup())
+    for admin_id in callback.bot.config.tg_bot.admin_ids:
+        await callback.bot.send_message(admin_id, admin_message)
 
-    basket_list = await Basket().get_all_products(message.from_user.id)
+    basket_list = await Basket().get_all_products(callback.from_user.id)
     product_model = Products()
 
     basket_price = 0
@@ -250,8 +307,10 @@ async def get_checkout(message: Message, state: FSMContext):
     for basket in basket_list:
         basket_price += (await product_model.get_product_by_id(basket.product)).price
 
-    await message.reply('Please wait when admin confirm your order',
-                        reply_markup=user_menu_inline_keyboard(basket_price).as_markup())
+    await callback.message.reply('Thank you for your order, your goods will be shipped the next working day. '
+                                 'You will receive delivery tracking information '
+                                 'via email as soon your goods are shipped.',
+                                 reply_markup=review_inline_keyboard().as_markup())
 
 
 def register_checkout_handler(dp: Dispatcher):
@@ -265,6 +324,8 @@ def register_checkout_handler(dp: Dispatcher):
     dp.callback_query.register(vendor_secret_key, lambda callback: callback.data == 'vendor_secret_key')
     dp.callback_query.register(enter_delivery_method, lambda callback: callback.data == 'checkout_delivery_method')
     dp.callback_query.register(get_delivery_method, StateFilter(CheckoutState.delivery_method))
+    dp.callback_query.register(enter_payment_method, lambda callback: callback.data == 'checkout_payment_method')
+    dp.callback_query.register(get_payment_method, StateFilter(CheckoutState.payment_method))
     dp.callback_query.register(enter_checkout, lambda callback: callback.data == 'checkout_payment')
-    dp.message.register(get_checkout, StateFilter(CheckoutState.payment))
+    dp.callback_query.register(get_checkout, lambda callback: callback.data == 'checkout_checkout_payment')
     dp.callback_query.register(checkout_delete, lambda callback: callback.data == 'checkout_delete')

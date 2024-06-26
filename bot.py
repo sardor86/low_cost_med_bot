@@ -2,6 +2,7 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
+from aiogram.methods import DeleteWebhook
 
 from tgbot.config import load_config, set_gino
 from tgbot.handlers import register_all_handlers
@@ -30,9 +31,12 @@ async def main():
     register_all_handlers(dp)
     await create_all_db()
 
+    await bot(DeleteWebhook(drop_pending_updates=True))
+    
     # start
     try:
-        await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+        await dp.start_polling(bot,
+                               allowed_updates=dp.resolve_used_update_types())
     finally:
         await dp.storage.close()
         await bot.session.close()

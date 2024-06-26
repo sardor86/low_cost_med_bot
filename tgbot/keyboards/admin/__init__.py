@@ -6,7 +6,6 @@ from .inline import (get_menu_inline_keyboard,
                      get_choice_discount,
                      get_delivery_menu_inline_keyboard,
                      get_choice_delivery,
-                     confirm_order_inline_keyboard,
                      start_discussion_inline_keyboard,
                      discussion_menu_inline_keyboard,
                      review_inline_keyboard)

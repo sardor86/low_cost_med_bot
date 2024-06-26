@@ -34,9 +34,9 @@ def user_menu_inline_keyboard(price: int) -> InlineKeyboardBuilder:
     keyboard.row(InlineKeyboardButton(text='💊 Listings', callback_data='listings'))
     keyboard.row(InlineKeyboardButton(text='About', callback_data='about'))
     keyboard.row(InlineKeyboardButton(text='📈 Rating', callback_data='rating'),
+                 InlineKeyboardButton(text='📦 Orders', callback_data='orders'),
                  InlineKeyboardButton(text='🔑 PGP', callback_data='secret_key'))
-    keyboard.row(InlineKeyboardButton(text='📦 Orders', callback_data='orders'),
-                 InlineKeyboardButton(text=f'🛒 £{price}', callback_data='basket'))
+    keyboard.row(InlineKeyboardButton(text=f'🛒 £{price}', callback_data='basket'))
     keyboard.row(InlineKeyboardButton(text='📭 Contact', callback_data='contact'))
 
     return keyboard
@@ -84,7 +84,8 @@ async def get_basket_menu(basket_list: list[Basket.BasketTable]) -> InlineKeyboa
 
 def checkout_menu_inline_keyboard(discount_code: bool | None = None,
                                   delivery_address: bool | None = None,
-                                  delivery_method: bool | None = None) -> InlineKeyboardBuilder:
+                                  delivery_method: bool | None = None,
+                                  payment_method: bool | None = None) -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
 
     if discount_code:
@@ -99,11 +100,14 @@ def checkout_menu_inline_keyboard(discount_code: bool | None = None,
         keyboard.row(InlineKeyboardButton(text='✅Enter Delivery Method', callback_data='checkout_delivery_method'))
     else:
         keyboard.row(InlineKeyboardButton(text='Enter Delivery Method', callback_data='checkout_delivery_method'))
+    if payment_method:
+        keyboard.row(InlineKeyboardButton(text='✅Enter Payment Method', callback_data='checkout_payment_method'))
+    else:
+        keyboard.row(InlineKeyboardButton(text='Enter Payment Method', callback_data='checkout_payment_method'))
 
-    if delivery_method and delivery_address:
+    if delivery_method and delivery_address and payment_method:
         keyboard.row(InlineKeyboardButton(text='Checkout', callback_data='checkout_payment'))
 
-    keyboard.row(InlineKeyboardButton(text='cancellation', callback_data='checkout_cancel'))
     keyboard.row(InlineKeyboardButton(text='Delete Order', callback_data='checkout_delete'))
 
     return keyboard
@@ -129,12 +133,36 @@ def get_choice_delivery(delivery_method_list: list[DeliveryMethod.DeliveryMethod
     return keyboard
 
 
+def get_choice_payment_method_inline_keyboard() -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+
+    keyboard.row(InlineKeyboardButton(text='USDT', callback_data='USDT'),
+                 InlineKeyboardButton(text='USDC', callback_data='USDC'),
+                 InlineKeyboardButton(text='BTC', callback_data='BTC'))
+    keyboard.row(InlineKeyboardButton(text='ETH', callback_data='ETH'),
+                 InlineKeyboardButton(text='TON', callback_data='TON'),
+                 InlineKeyboardButton(text='BNB', callback_data='BNB'))
+
+    keyboard.row(InlineKeyboardButton(text='cancel', callback_data='checkout_cancel'))
+
+    return keyboard
+
+
 def checkout_address_menu_inline_keyboard() -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
 
     keyboard.row(InlineKeyboardButton(text='Why is it safe?', callback_data='checkout_about'))
     keyboard.row(InlineKeyboardButton(text='Vendor PGP key', callback_data='vendor_secret_key'))
     keyboard.row(InlineKeyboardButton(text='cancel', callback_data='checkout_cancel'))
+
+    return keyboard
+
+
+def checkout_payment_inline_keyboard(payment_url) -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+
+    keyboard.row(InlineKeyboardButton(text='Pay', url=payment_url),
+                 InlineKeyboardButton(text='Check payment', callback_data='checkout_checkout_payment'))
 
     return keyboard
 

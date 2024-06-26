@@ -18,7 +18,7 @@ class DbConfig:
 class TgBot:
     token: str
     admin_ids: list[int]
-    group_id: int
+    crypto_token: str
 
 
 @dataclass
@@ -42,7 +42,7 @@ def load_config(path: str = None):
         tg_bot=TgBot(
             token=env.str('BOT_TOKEN'),
             admin_ids=list(map(int, env.str('ADMINS').split(','))),
-            group_id=env.int('GROUP_ID')
+            crypto_token=env.str('TOKEN')
         ),
         db=DbConfig(
             host=env.str('DB_HOST'),

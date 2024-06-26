@@ -25,6 +25,7 @@ class CheckoutState(StatesGroup):
     payment = State()
     delivery_address = State()
     delivery_method = State()
+    payment_method = State()
 
 
 class DiscussionState(StatesGroup):

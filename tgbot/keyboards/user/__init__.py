@@ -13,4 +13,6 @@ from .inline import (get_register_inline_keyboard,
                      discussion_menu_inline_keyboard,
                      discussion_cancel_inline_keyboard,
                      review_menu_inline_keyboard,
-                     cancel_listing_quantity_manually_inline_keyboard)
+                     cancel_listing_quantity_manually_inline_keyboard,
+                     get_choice_payment_method_inline_keyboard,
+                     checkout_payment_inline_keyboard)
