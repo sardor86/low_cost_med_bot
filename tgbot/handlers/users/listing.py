@@ -95,22 +95,33 @@ async def product_details(callback: CallbackQuery, data: dict):
 
     all_review = await ReviewProduct().get_all_reviews(data['product'].id)
     review_model = Review()
-    review_middle = 0
+    all_sum_of_review = 0
     for review in all_review:
-        review_middle += (await review_model.get_review(review.review)).stars + 1
+        all_sum_of_review += (await review_model.get_review(review.review)).stars + 1
     if len(all_review) == 0:
-        all_review.append(0)
-    await callback.bot.send_photo(callback.message.chat.id,
-                                  caption=f'{data["product"].name}\n'
-                                          f'{data["group"].group_name} • Stock Unlimited • ★ '
-                                          f'{review_middle / len(all_review)} ({len(all_review)})\n\n'
-                                          f'{data["product"].description}\n\n'
-                                          f'price: £{data["product"].price} for 1 pcs',
-                                  photo=data['product'].image,
-                                  reply_markup=product_menu_inline_keyboard(data['quantity'],
-                                                                            data['product'].price,
-                                                                            basket,
-                                                                            len(all_review)).as_markup())
+        middle_review = 0
+    else:
+        middle_review = all_sum_of_review / len(all_review)
+
+    capture = (f'{data["product"].name}\n'
+               f'{data["group"].group_name} • Stock Unlimited • ★ '
+               f'{middle_review} ({len(all_review)})\n\n'
+               f'{data["product"].description}\n\n'
+               f'price: £{data["product"].price} for 1 pcs')
+    reply_markup = product_menu_inline_keyboard(data['quantity'],
+                                                data['product'].price,
+                                                basket,
+                                                len(all_review)).as_markup()
+
+    if data['product'].image == 'None':
+        await callback.bot.send_message(callback.message.chat.id,
+                                        text=capture,
+                                        reply_markup=reply_markup)
+    else:
+        await callback.bot.send_photo(callback.message.chat.id,
+                                      caption=capture,
+                                      photo=data['product'].image,
+                                      reply_markup=reply_markup)
 
 
 async def show_product_details(callback: CallbackQuery, state: FSMContext):

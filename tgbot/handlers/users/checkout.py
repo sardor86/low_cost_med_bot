@@ -77,9 +77,9 @@ async def checkout_cancellation(callback: CallbackQuery, state: FSMContext):
         return
     all_review = await Review().get_all_reviews()
 
-    review_middle = 0
+    all_sum_of_review = 0
     for review in all_review:
-        review_middle += review.stars + 1
+        all_sum_of_review += review.stars + 1
 
     basket_list = await Basket().get_all_products(callback.from_user.id)
     product_model = Products()
@@ -90,10 +90,12 @@ async def checkout_cancellation(callback: CallbackQuery, state: FSMContext):
         basket_price += (await product_model.get_product_by_id(basket.product)).price
 
     if len(all_review) == 0:
-        all_review.append(0)
+        middle_review = 0
+    else:
+        middle_review = all_sum_of_review / len(all_review)
     await callback.message.reply('Ships from: UK → UK\n'
                                  'Currency: GBP\n'
-                                 f'Rating: ★{review_middle / len(all_review)} ({len(all_review)})\n',
+                                 f'Rating: ★{middle_review} ({len(all_review)})\n',
                                  reply_markup=user_menu_inline_keyboard(basket_price).as_markup())
     await state.clear()
 

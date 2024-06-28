@@ -16,9 +16,9 @@ async def user_start(message: Message, state: FSMContext):
 
     all_review = await Review().get_all_reviews()
 
-    review_middle = 0
+    all_sum_of_review = 0
     for review in all_review:
-        review_middle += review.stars + 1
+        all_sum_of_review += review.stars + 1
 
     basket_list = await Basket().get_all_products(message.from_user.id)
     product_model = Products()
@@ -29,10 +29,13 @@ async def user_start(message: Message, state: FSMContext):
         basket_price += (await product_model.get_product_by_id(basket.product)).price
 
     if len(all_review) == 0:
-        all_review.append(0)
+        middle_review = 0
+    else:
+        middle_review = all_sum_of_review / len(all_review)
+
     await message.reply('Ships from: UK → UK\n'
                         'Currency: GBP\n'
-                        f'Rating: ★{review_middle / len(all_review)} ({len(all_review)})\n',
+                        f'Rating: ★{middle_review} ({len(all_review)})\n',
                         reply_markup=user_menu_inline_keyboard(basket_price).as_markup())
 
     await state.clear()
@@ -41,9 +44,9 @@ async def user_start(message: Message, state: FSMContext):
 async def menu(callback: CallbackQuery, state: FSMContext):
     all_review = await Review().get_all_reviews()
 
-    review_middle = 0
+    all_sum_of_review = 0
     for review in all_review:
-        review_middle += review.stars + 1
+        all_sum_of_review += review.stars + 1
 
     basket_list = await Basket().get_all_products(callback.from_user.id)
     product_model = Products()
@@ -53,12 +56,16 @@ async def menu(callback: CallbackQuery, state: FSMContext):
     for basket in basket_list:
         basket_price += (await product_model.get_product_by_id(basket.product)).price
     await callback.message.delete()
+
     if len(all_review) == 0:
-        all_review.append(0)
+        middle_review = 0
+    else:
+        middle_review = all_sum_of_review / len(all_review)
+
     await callback.bot.send_message(callback.from_user.id,
                                     'Ships from: UK → UK\n'
                                     'Currency: GBP\n'
-                                    f'Rating: ★{review_middle / len(all_review)} ({len(all_review)})\n',
+                                    f'Rating: ★{middle_review} ({len(all_review)})\n',
                                     reply_markup=user_menu_inline_keyboard(basket_price).as_markup())
     await state.clear()
 
