@@ -89,6 +89,8 @@ async def checkout_cancellation(callback: CallbackQuery, state: FSMContext):
     for basket in basket_list:
         basket_price += (await product_model.get_product_by_id(basket.product)).price
 
+    if len(all_review) == 0:
+        all_review.append(0)
     await callback.message.reply('Ships from: UK → UK\n'
                                  'Currency: GBP\n'
                                  f'Rating: ★{review_middle / len(all_review)} ({len(all_review)})\n',
@@ -227,7 +229,7 @@ async def get_payment_method(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_text(message_data['message_text'], reply_markup=message_data['markup'])
 
 
-async def enter_checkout(callback: CallbackQuery, state: FSMContext):
+async def enter_checkout(callback: CallbackQuery):
     exchange_rates = json.loads(requests.get('https://pay.crypt.bot/api/getExchangeRates',
                                              headers={
                                                  'Crypto-Pay-API-Token': callback.bot.config.tg_bot.crypto_token}).text)

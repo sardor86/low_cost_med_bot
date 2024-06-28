@@ -5,20 +5,15 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import BufferedInputFile
 
 from tgbot.models import Users, Review, Basket, Products
-from tgbot.keyboards.user import (get_register_inline_keyboard,
-                                  user_menu_inline_keyboard,
+from tgbot.keyboards.user import (user_menu_inline_keyboard,
                                   back_to_menu_inline_keyboard,
                                   delete_message_inline_keyboard)
 
 
 async def user_start(message: Message, state: FSMContext):
     await message.reply(f'Welcome, {message.from_user.first_name} !')
-    if not await Users().check_in_db_user(message.from_user.id):
-        await message.reply('🔐 You need to set a secret phrase to access the bot. '
-                            'This will then appear with every verified bot. '
-                            'The secret phrase allows you to stay safe and buy only from verified stores.',
-                            reply_markup=get_register_inline_keyboard().as_markup())
-        return
+    await Users().add_user(message.from_user.id)
+
     all_review = await Review().get_all_reviews()
 
     review_middle = 0
@@ -33,6 +28,8 @@ async def user_start(message: Message, state: FSMContext):
     for basket in basket_list:
         basket_price += (await product_model.get_product_by_id(basket.product)).price
 
+    if len(all_review) == 0:
+        all_review.append(0)
     await message.reply('Ships from: UK → UK\n'
                         'Currency: GBP\n'
                         f'Rating: ★{review_middle / len(all_review)} ({len(all_review)})\n',
@@ -56,6 +53,8 @@ async def menu(callback: CallbackQuery, state: FSMContext):
     for basket in basket_list:
         basket_price += (await product_model.get_product_by_id(basket.product)).price
     await callback.message.delete()
+    if len(all_review) == 0:
+        all_review.append(0)
     await callback.bot.send_message(callback.from_user.id,
                                     'Ships from: UK → UK\n'
                                     'Currency: GBP\n'

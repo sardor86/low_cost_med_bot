@@ -98,7 +98,8 @@ async def product_details(callback: CallbackQuery, data: dict):
     review_middle = 0
     for review in all_review:
         review_middle += (await review_model.get_review(review.review)).stars + 1
-
+    if len(all_review) == 0:
+        all_review.append(0)
     await callback.bot.send_photo(callback.message.chat.id,
                                   caption=f'{data["product"].name}\n'
                                           f'{data["group"].group_name} • Stock Unlimited • ★ '
