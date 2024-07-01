@@ -78,5 +78,3 @@ class Products(Base):
             await product.update(price=price).apply()
         elif image:
             await product.update(image=image).apply()
-
-

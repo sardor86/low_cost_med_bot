@@ -9,3 +9,4 @@ from .order import Order
 from .discussion import Discussion
 from .review import Review
 from .review_product import ReviewProduct
+from .admin import Admin

@@ -10,6 +10,7 @@ def get_menu_inline_keyboard() -> InlineKeyboardBuilder:
     keyboard.row(InlineKeyboardButton(text='products', callback_data='admin_products'))
     keyboard.row(InlineKeyboardButton(text='discount', callback_data='admin_discount'))
     keyboard.row(InlineKeyboardButton(text='delivery method', callback_data='admin_delivery'))
+    keyboard.row(InlineKeyboardButton(text='Menu', callback_data='menu'))
 
     return keyboard
 
